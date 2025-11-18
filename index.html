@@ -41,7 +41,6 @@
       margin: 0;
       text-shadow: 0 4px 10px rgba(0,0,0,0.2);
     }
-    header p { font-size: 1.1em; margin-top: 8px; opacity: 0.95; }
 
     .screen { padding: 28px; display: none; }
     .screen.active { display: block; animation: fadeIn 0.6s; }
@@ -54,13 +53,11 @@
       border-radius: 20px;
       background: rgba(255,255,255,0.7);
       font-size: 1em;
-      transition: all 0.3s;
     }
     input:focus, select:focus, textarea:focus {
       outline: none;
       background: rgba(255,255,255,0.95);
       transform: scale(1.02);
-      box-shadow: 0 8px 25px rgba(0,0,0,0.15);
     }
     textarea { height: 80px; resize: none; }
 
@@ -68,7 +65,7 @@
       background: linear-gradient(135deg, #ff9eca, #a8e6ff);
       color: white;
       border: none;
-      padding: 16px 32ct32px;
+      padding: 16px 32px;
       border-radius: 50px;
       font-size: 1.1em;
       font-weight: 600;
@@ -76,37 +73,45 @@
       width: 100%;
       margin-top: 20px;
       box-shadow: 0 10px 30px rgba(255, 138, 215, 0.4);
-      transition: all 0.3s;
     }
     button:hover { transform: translateY(-4px); }
 
     .small-row { display: flex; gap: 12px; }
     .small-row input { flex: 1; }
 
-    #status {
+    /* NEW LOADING SCREEN */
+    #loadingScreen {
       text-align: center;
-      font-size: 1.2em;
-      font-weight: 500;
-      margin: 20px 0;
+      padding: 60px 20px;
+    }
+    .spinner {
+      font-size: 4em;
+      animation: spin 2s linear infinite;
+      margin-bottom: 20px;
+      color: #ff9eca;
+    }
+    #loadingText {
+      font-size: 1.4em;
+      font-weight: 600;
       color: #ff6bc0;
     }
-
-    .profiles {
-      display: flex;
-      gap: 16px;
-      margin: 20px 0;
+    .dots {
+      display: inline-block;
     }
+    .dots::after {
+      content: '...';
+      animation: dots 1.5s infinite;
+    }
+
+    .profiles { display: flex; gap: 16px; margin: 20px 0; }
     .profile-card {
       flex: 1;
       background: rgba(255,255,255,0.6);
       border-radius: 20px;
       padding: 16px;
       text-align: center;
-      box-shadow: 0 8px 25px rgba(0,0,0,0.1);
     }
-    .profile-card h4 { font-size: 1.2em; margin-bottom: 12px; color: #ff6bc0; }
-    .profile-card p { margin: 8px 0; font-size: 0.95em; }
-    .profile-card i { font-size: 1.8em; margin-bottom: 8px; color: #ffa8e1; }
+    .profile h4 { color: #ff6bc0; margin-bottom: 10px; }
 
     #messages {
       height: 360px;
@@ -124,49 +129,18 @@
       padding: 12px 18px;
       border-radius: 20px;
       line-height: 1.5;
-      word-wrap: break-word;
       animation: msgPop 0.4s;
     }
-    .you {
-      align-self: flex-end;
-      background: linear-gradient(135deg, #ff9eca, #ffa8e1);
-      color: white;
-    }
-    .stranger {
-      align-self: flex-start;
-      background: rgba(255,255,255,0.9);
-    }
-    .system {
-      align-self: center;
-      background: transparent;
-      font-size: 0.9em;
-      color: #888;
-      font-style: italic;
-    }
+    .you { align-self: flex-end; background: linear-gradient(135deg, #ff9eca, #ffa8e1); color: white; }
+    .stranger { align-self: flex-start; background: rgba(255,255,255,0.9); }
 
-    #inputArea {
-      display: flex;
-      gap: 12px;
-      margin-top: 10px;
-    }
-    #msgInput {
-      flex: 1;
-      background: rgba(255,255,255,0.8);
-      border-radius: 30px;
-      padding: 16px 20px;
-    }
-    #sendBtn {
-      width: auto;
-      padding: 16px 24px;
-      border-radius: 50%;
-      font-size: 1.3em;
-    }
-    #nextBtn {
-      background: #ccc;
-      margin-top: 12px;
-    }
+    #inputArea { display: flex; gap: 12px; margin-top: 10px; }
+    #msgInput { flex: 1; background: rgba(255,255,255,0.8); border-radius: 30px; padding: 16px 20px; }
+    #sendBtn { padding: 16px 24px; border-radius: 50%; font-size: 1.3em; }
 
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: none; } }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    @keyframes dots { 0%, 20% { content: '.'; } 40% { content: '..'; } 60%, 100% { content: '...'; } }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     @keyframes msgPop { from { opacity: 0; transform: scale(0.8); } to { opacity: 1; transform: scale(1); } }
   </style>
 </head>
@@ -178,14 +152,10 @@
       <p>Chat with students around Leyte ♡</p>
     </header>
 
+    <!-- Home -->
     <div id="home" class="screen active">
-      <select id="level" required>
-        <option value="">Your Level</option>
-        <option>High School</option>
-        <option>College</option>
-        <option>Other</option>
-      </select>
-      <input list="schools" id="school" placeholder="🏫 Your school" required>
+      <select id="level" required><option value="">Your Level</option><option>High School</option><option>College</option><option>Other</option></select>
+      <input list="schools" id="school" placeholder="Your school" required>
       <datalist id="schools">
         <option>Visayas State University</option>
         <option>Eastern Visayas State University</option>
@@ -196,26 +166,31 @@
         <option>Others...</option>
       </datalist>
       <div class="small-row">
-        <input id="age" type="number" min="13" placeholder="🎂 Age" required>
-        <input id="gender" placeholder="♀♂ Gender (optional)">
+        <input id="age" type="number" min="13" placeholder="Age" required>
+        <input id="gender" placeholder="Gender (optional)">
       </div>
-      <textarea id="hobbies" placeholder="✨ Hobbies (anime, basketball, kpop...)"></textarea>
+      <textarea id="hobbies" placeholder="Hobbies (optional)"></textarea>
       <button id="startBtn">♡ Start Chatting ♡</button>
     </div>
 
+    <!-- NEW LOADING SCREEN -->
+    <div id="loadingScreen" class="screen">
+      <div class="spinner">💕</div>
+      <div id="loadingText">Finding you a pangga<span class="dots"></span></div>
+    </div>
+
+    <!-- Chat -->
     <div id="chat" class="screen">
-      <div id="status">Finding your pangga... 💕</div>
+      <div id="status" style="text-align:center;font-size:1.3em;margin:20px;color:#ff6bc0;font-weight:600;"></div>
 
       <div class="profiles">
-        <div class="profile-card">
-          <i class="fas fa-user"></i>
+        <div class="profile">
           <h4>You</h4>
           <p><b>School:</b> <span id="mySchool">-</span></p>
           <p><b>Level:</b> <span id="myLevel">-</span></p>
           <p><b>Age:</b> <span id="myAge">-</span></p>
         </div>
-        <div class="profile-card">
-          <i class="fas fa-user-secret"></i>
+        <div class="profile">
           <h4>Stranger</h4>
           <p><b>School:</b> <span id="strSchool">-</span></p>
           <p><b>Level:</b> <span id="strLevel">-</span></p>
@@ -227,16 +202,16 @@
 
       <div id="inputArea">
         <input type="text" id="msgInput" placeholder="Say something sweet...">
-        <button id="sendBtn"><i class="fas fa-paper-plane"></i></button>
+        <button id="sendBtn">Send</button>
       </div>
-      <button id="nextBtn">Next Pangga →</button>
+      <button id="nextBtn" style="background:#ccc;margin-top:15px;">Next Pangga →</button>
     </div>
   </div>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
     import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
-    import { getDatabase, ref, set, onValue, onDisconnect, remove, serverTimestamp, onChildAdded, query, limitToLast } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-database.js";
+    import { getDatabase, ref, set, onValue, onDisconnect, remove, serverTimestamp, onChildAdded } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-database.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyC7vg_MGjiVvbbvnBAPRLDXnzK4OWflrCw",
@@ -263,90 +238,68 @@
     });
 
     document.getElementById('startBtn').onclick = async () => {
-      if (!me) return alert('Still loading... try again in 3 seconds');
+      if (!me) return alert('Wait a sec...');
 
       const level = document.getElementById('level').value;
       const school = document.getElementById('school').value.trim();
       const age = document.getElementById('age').value;
-      if (!level || !school || !age) return alert('Fill everything, pangga! ♡');
+      if (!level || !school || !age) return alert('Fill up everything!');
 
-      // Save profile
       await set(ref(db, `profiles/${me}`), { level, school, age: Number(age) });
 
       document.getElementById('myLevel').textContent = level;
       document.getElementById('mySchool').textContent = school;
       document.getElementById('myAge').textContent = age;
 
+      // SWITCH TO LOADING SCREEN
       document.getElementById('home').classList.remove('active');
-      document.getElementById('chat').classList.add('active');
+      document.getElementById('loadingScreen').classList.add('active');
 
-      // Join queue
       myQueueRef = ref(db, `queue/${me}`);
       await set(myQueueRef, serverTimestamp());
       onDisconnect(myQueueRef).remove();
 
-      // Listen for ANYONE in queue
-      onChildAdded(query(ref(db, 'queue')), async (snap) => {
+      onChildAdded(ref(db, 'queue'), async (snap) => {
         const uid = snap.key;
         if (uid === me || partner) return;
 
         partner = uid;
-
-        // Create room
         const roomId = me < uid ? `${me}_${uid}` : `${uid}_${me}`;
         roomRef = ref(db, `rooms/${roomId}`);
         await set(roomRef, { users: { [me]: true, [uid]: true } });
-
-        // Remove ONLY the two of us from queue
         await remove(ref(db, `queue/${me}`));
         await remove(ref(db, `queue/${uid}`));
 
-        // Load stranger profile
-        const profileSnap = await get(ref(db, `profiles/${uid}`));
-        if (profileSnap.val()) {
-          const p = profileSnap.val();
-          document.getElementById('strLevel').textContent = p.level || '?';
-          document.getElementById('strSchool').textContent = p.school || '?';
-          document.getElementById('strAge').textContent = p.age || '?';
+        const p = await get(ref(db, `profiles/${uid}`));
+        if (p.val()) {
+          const d = p.val();
+          document.getElementById('strLevel').textContent = d.level;
+          document.getElementById('strSchool').textContent = d.school;
+          document.getElementById('strAge').textContent = d.age;
         }
 
-        document.getElementById('status').innerHTML = 'Connected! 💕 Say hi!';
-        startListeningToChat();
+        // SWITCH TO CHAT
+        document.getElementById('loadingScreen').classList.remove('active');
+        document.getElementById('chat').classList.add('active');
+        document.getElementById('status').textContent = 'Connected na! 💕';
+
+        // Start listening to messages
+        onChildAdded(ref(db, `rooms/${roomId}/messages`), (snap) => {
+          const m = snap.val();
+          const div = document.createElement('div');
+          div.className = `msg ${m.uid === me ? 'you' : 'stranger'}`;
+          div.textContent = m.text;
+          document.getElementById('messages').appendChild(div);
+          document.getElementById('messages').scrollTop = document.getElementById('messages').scrollHeight;
+        });
       });
     };
-
-    function startListeningToChat() {
-      const messagesRef = ref(db, `rooms/${roomRef.key}/messages`);
-      onChildAdded(messagesRef, (snap) => {
-        const msg = snap.val();
-        const div = document.createElement('div');
-        div.className = `msg ${msg.uid === me ? 'you' : 'stranger'}`;
-        div.textContent = msg.text;
-        document.getElementById('messages').appendChild(div);
-        document.getElementById('messages').scrollTop = document.getElementById('messages').scrollHeight;
-      });
-
-      // Detect disconnect
-      onValue(ref(db, `rooms/${roomRef.key}/users`), (snap) => {
-        if (!snap.exists() || Object.keys(snap.val()).length < 2) {
-          const div = document.createElement('div');
-          div.className = 'msg system';
-          div.textContent = 'Your pangga left... 💔';
-          document.getElementById('messages').appendChild(div);
-          setTimeout(() => location.reload(), 3000);
-        }
-      });
-    }
 
     // Send message
     const send = () => {
       const text = document.getElementById('msgInput').value.trim();
       if (!text || !roomRef) return;
-      push(ref(db, `rooms/${roomRef.key}/messages`), {
-        text,
-        uid: me,
-        ts: serverTimestamp()
-      });
+      push(ref(db, `rooms/${roomRef.key}/messages`), { text, uid: me, ts: serverTimestamp() });
       document.getElementById('msgInput').value = '';
     };
     document.getElementById('sendBtn').onclick = send;
