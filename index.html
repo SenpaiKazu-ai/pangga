@@ -43,7 +43,6 @@
     }
     header p { font-size: 1.1em; margin-top: 8px; opacity: 0.95; }
 
-    /* Screens */
     .screen { padding: 28px; display: none; }
     .screen.active { display: block; animation: fadeIn 0.6s; }
 
@@ -56,7 +55,6 @@
       background: rgba(255,255,255,0.7);
       font-size: 1em;
       transition: all 0.3s;
-      backdrop-filter: blur(10px);
     }
     input:focus, select:focus, textarea:focus {
       outline: none;
@@ -70,7 +68,7 @@
       background: linear-gradient(135deg, #ff9eca, #a8e6ff);
       color: white;
       border: none;
-      padding: 16px 32px;
+      padding: 16px 32ct32px;
       border-radius: 50px;
       font-size: 1.1em;
       font-weight: 600;
@@ -80,18 +78,17 @@
       box-shadow: 0 10px 30px rgba(255, 138, 215, 0.4);
       transition: all 0.3s;
     }
-    button:hover { transform: translateY(-4px); box-shadow: 0 15px 35px rgba(255, 138, 215, 0.5); }
-    button:active { transform: translateY(-1px); }
+    button:hover { transform: translateY(-4px); }
 
     .small-row { display: flex; gap: 12px; }
     .small-row input { flex: 1; }
 
     #status {
       text-align: center;
-      font-size: 1.1em;
+      font-size: 1.2em;
       font-weight: 500;
       margin: 20px 0;
-      color: #555;
+      color: #ff6bc0;
     }
 
     .profiles {
@@ -107,16 +104,12 @@
       text-align: center;
       box-shadow: 0 8px 25px rgba(0,0,0,0.1);
     }
-    .profile-card h4 {
-      font-size: 1.2em;
-      margin-bottom: 12px;
-      color: #ff6bc0;
-    }
+    .profile-card h4 { font-size: 1.2em; margin-bottom: 12px; color: #ff6bc0; }
     .profile-card p { margin: 8px 0; font-size: 0.95em; }
-    .profile-card i { font-size: 1.4em; margin-bottom: 8px; }
+    .profile-card i { font-size: 1.8em; margin-bottom: 8px; color: #ffa8e1; }
 
     #messages {
-      height: 380px;
+      height: 360px;
       overflow-y: auto;
       padding: 20px;
       background: rgba(255,255,255,0.4);
@@ -138,12 +131,10 @@
       align-self: flex-end;
       background: linear-gradient(135deg, #ff9eca, #ffa8e1);
       color: white;
-      border-bottom-right-radius: 4px;
     }
     .stranger {
       align-self: flex-start;
       background: rgba(255,255,255,0.9);
-      border-bottom-left-radius: 4px;
     }
     .system {
       align-self: center;
@@ -170,11 +161,9 @@
       border-radius: 50%;
       font-size: 1.3em;
     }
-
     #nextBtn {
-      background: #aaa;
+      background: #ccc;
       margin-top: 12px;
-      box-shadow: 0 8px 20px rgba(0,0,0,0.2);
     }
 
     @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: none; } }
@@ -189,7 +178,6 @@
       <p>Chat with students around Leyte ♡</p>
     </header>
 
-    <!-- Home Screen -->
     <div id="home" class="screen active">
       <select id="level" required>
         <option value="">Your Level</option>
@@ -211,11 +199,10 @@
         <input id="age" type="number" min="13" placeholder="🎂 Age" required>
         <input id="gender" placeholder="♀♂ Gender (optional)">
       </div>
-      <textarea id="hobbies" placeholder="✨ Hobbies (anime, kpop, basketball...)"></textarea>
-      <button id="startBtn"><i class="fas fa-heart"></i> Start Chatting</button>
+      <textarea id="hobbies" placeholder="✨ Hobbies (anime, basketball, kpop...)"></textarea>
+      <button id="startBtn">♡ Start Chatting ♡</button>
     </div>
 
-    <!-- Chat Screen -->
     <div id="chat" class="screen">
       <div id="status">Finding your pangga... 💕</div>
 
@@ -246,11 +233,10 @@
     </div>
   </div>
 
-  <!-- FULL WORKING SCRIPT (same reliable logic as before) -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
     import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
-    import { getDatabase, ref, set, push, onValue, onDisconnect, remove, serverTimestamp, onChildAdded, query, limitToLast } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-database.js";
+    import { getDatabase, ref, set, onValue, onDisconnect, remove, serverTimestamp, onChildAdded, query, limitToLast } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-database.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyC7vg_MGjiVvbbvnBAPRLDXnzK4OWflrCw",
@@ -266,22 +252,26 @@
     const auth = getAuth(app);
     const db = getDatabase(app);
 
-    let myUID = null;
-    let roomId = null;
-    let partnerUID = null;
+    let me = null;
+    let partner = null;
+    let roomRef = null;
+    let myQueueRef = null;
 
     onAuthStateChanged(auth, user => {
-      if (user) myUID = user.uid;
+      if (user) me = user.uid;
       else signInAnonymously(auth);
     });
 
     document.getElementById('startBtn').onclick = async () => {
+      if (!me) return alert('Still loading... try again in 3 seconds');
+
       const level = document.getElementById('level').value;
       const school = document.getElementById('school').value.trim();
       const age = document.getElementById('age').value;
-      if (!level || !school || !age) return alert("Fill all required fields, pangga! ♡");
+      if (!level || !school || !age) return alert('Fill everything, pangga! ♡');
 
-      await set(ref(db, `profiles/${myUID}`), { level, school, age: Number(age) });
+      // Save profile
+      await set(ref(db, `profiles/${me}`), { level, school, age: Number(age) });
 
       document.getElementById('myLevel').textContent = level;
       document.getElementById('mySchool').textContent = school;
@@ -290,58 +280,73 @@
       document.getElementById('home').classList.remove('active');
       document.getElementById('chat').classList.add('active');
 
-      const myEntry = ref(db, `queue/${myUID}`);
-      await set(myEntry, { ts: serverTimestamp() });
-      onDisconnect(myEntry).remove();
+      // Join queue
+      myQueueRef = ref(db, `queue/${me}`);
+      await set(myQueueRef, serverTimestamp());
+      onDisconnect(myQueueRef).remove();
 
-      onChildAdded(query(ref(db, 'queue'), limitToLast(10)), async (snap) => {
+      // Listen for ANYONE in queue
+      onChildAdded(query(ref(db, 'queue')), async (snap) => {
         const uid = snap.key;
-        if (uid === myUID || partnerUID) return;
+        if (uid === me || partner) return;
 
-        partnerUID = uid;
-        roomId = [myUID, uid].sort().join('_');
-        await set(ref(db, `rooms/${roomId}`), { users: { [myUID]: true, [uid]: true } });
-        await remove(ref(db, 'queue'));
+        partner = uid;
 
-        const p = await get(ref(db, `profiles/${uid}`));
-        if (p.val()) {
-          const d = p.val();
-          document.getElementById('strLevel').textContent = d.level;
-          document.getElementById('strSchool').textContent = d.school;
-          document.getElementById('strAge').textContent = d.age;
+        // Create room
+        const roomId = me < uid ? `${me}_${uid}` : `${uid}_${me}`;
+        roomRef = ref(db, `rooms/${roomId}`);
+        await set(roomRef, { users: { [me]: true, [uid]: true } });
+
+        // Remove ONLY the two of us from queue
+        await remove(ref(db, `queue/${me}`));
+        await remove(ref(db, `queue/${uid}`));
+
+        // Load stranger profile
+        const profileSnap = await get(ref(db, `profiles/${uid}`));
+        if (profileSnap.val()) {
+          const p = profileSnap.val();
+          document.getElementById('strLevel').textContent = p.level || '?';
+          document.getElementById('strSchool').textContent = p.school || '?';
+          document.getElementById('strAge').textContent = p.age || '?';
         }
 
         document.getElementById('status').innerHTML = 'Connected! 💕 Say hi!';
-        startChat();
+        startListeningToChat();
       });
     };
 
-    function startChat() {
-      const msgRef = ref(db, `rooms/${roomId}/messages`);
-      onChildAdded(msgRef, (snap) => {
-        const m = snap.val();
+    function startListeningToChat() {
+      const messagesRef = ref(db, `rooms/${roomRef.key}/messages`);
+      onChildAdded(messagesRef, (snap) => {
+        const msg = snap.val();
         const div = document.createElement('div');
-        div.className = `msg ${m.uid === myUID ? 'you' : 'stranger'}`;
-        div.textContent = m.text;
+        div.className = `msg ${msg.uid === me ? 'you' : 'stranger'}`;
+        div.textContent = msg.text;
         document.getElementById('messages').appendChild(div);
         document.getElementById('messages').scrollTop = document.getElementById('messages').scrollHeight;
       });
 
-      onValue(ref(db, `rooms/${roomId}/users`), (snap) => {
-        if (!snap.exists() || Object.keys(snap.val() || {}).length < 2) {
+      // Detect disconnect
+      onValue(ref(db, `rooms/${roomRef.key}/users`), (snap) => {
+        if (!snap.exists() || Object.keys(snap.val()).length < 2) {
           const div = document.createElement('div');
           div.className = 'msg system';
-          div.textContent = 'Pangga left... 💔';
+          div.textContent = 'Your pangga left... 💔';
           document.getElementById('messages').appendChild(div);
-          setTimeout(() => location.reload(), 3500);
+          setTimeout(() => location.reload(), 3000);
         }
       });
     }
 
+    // Send message
     const send = () => {
       const text = document.getElementById('msgInput').value.trim();
-      if (!text || !roomId) return;
-      push(ref(db, `rooms/${roomId}/messages`), { text, uid: myUID, ts: serverTimestamp() });
+      if (!text || !roomRef) return;
+      push(ref(db, `rooms/${roomRef.key}/messages`), {
+        text,
+        uid: me,
+        ts: serverTimestamp()
+      });
       document.getElementById('msgInput').value = '';
     };
     document.getElementById('sendBtn').onclick = send;
