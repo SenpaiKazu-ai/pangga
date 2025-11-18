@@ -18,7 +18,8 @@
       align-items: center;
       justify-content: center;
       color: #333;
-      overflow: hidden;
+      /* allow page scrolling when content grows */
+      overflow: auto;
     }
     #container {
       width: 92%;
@@ -192,6 +193,10 @@
     <header>
       <h1>PanggaMeet</h1>
       <p>Chat with students around Leyte ♡</p>
+      <!-- quick queue indicator so other users can see search activity -->
+      <div id="queueInfo" style="font-size:0.9em;color:white;margin-top:6px;">
+        <span id="searchCount">0</span> users searching...
+      </div>
     </header>
 
     <!-- Home -->
@@ -288,7 +293,10 @@
         <input type="text" id="msgInput" placeholder="Say something sweet...">
         <button id="sendBtn">Send</button>
       </div>
-      <button id="nextBtn" style="background:#ccc;margin-top:15px;">Next Pangga →</button>
+      <div style="display:flex; gap:12px; margin-top:15px;">
+        <button id="nextBtn" style="background:#ccc; flex:1;">Next Pangga →</button>
+        <button id="skipBtn" style="background:#ffa06b; flex:1;">Skip</button>
+      </div>
     </div>
   </div>
 
@@ -332,7 +340,16 @@
     const messagesEl = document.getElementById('messages');
     const sendBtn = document.getElementById('sendBtn');
     const msgInput = document.getElementById('msgInput');
+    const skipBtn = document.getElementById('skipBtn');
     const nextBtn = document.getElementById('nextBtn');
+    const searchCountEl = document.getElementById('searchCount');
+    const levelSelect = document.getElementById('level');
+    const schoolInput = document.getElementById('school');
+    const schoolsDatalist = document.getElementById('schools');
+
+    // disable send until connected
+    sendBtn.disabled = true;
+    msgInput.disabled = true;
 
     // Add global error handlers to catch runtime problems during debugging
     window.addEventListener('error', (e) => {
@@ -365,6 +382,49 @@
           alert('Authentication failed. Check console.');
         }
       }
+    });
+
+    // --- dynamic school lists ---
+    const schoolsByLevel = {
+      'High School': [
+        'Leyte National High School',
+        "St. Scholastica's Tacloban",
+        'Tacloban City High School',
+        'Other High School...'
+      ],
+      'College': [
+        'Visayas State University',
+        'Eastern Visayas State University',
+        'Leyte Normal University',
+        'UP Tacloban',
+        'Other College...'
+      ],
+      'Other': [
+        'Others...'
+      ]
+    };
+    
+    function updateSchoolsForLevel(level) {
+      let list = schoolsByLevel[level] || [].concat(...Object.values(schoolsByLevel));
+      // produce options for datalist
+      schoolsDatalist.innerHTML = list.map(s => `<option value="${s}">`).join('');
+      if (level === 'High School') {
+        schoolInput.placeholder = 'Select your high school';
+      } else if (level === 'College') {
+        schoolInput.placeholder = 'Select your college';
+      } else {
+        schoolInput.placeholder = 'Your school';
+      }
+    }
+    // initial populate
+    updateSchoolsForLevel(levelSelect.value);
+    levelSelect.addEventListener('change', (e) => updateSchoolsForLevel(e.target.value));
+
+    // --- show number of users searching (other users can see someone is finding a match) ---
+    onValue(ref(db, 'queue'), (snap) => {
+      const v = snap.val();
+      const count = v ? Object.keys(v).length : 0;
+      searchCountEl.textContent = String(count);
     });
 
     // --- utility: preference compatibility check ---
@@ -463,6 +523,10 @@
         // remove both from queue
         await remove(ref(db, `queue/${me}`)).catch(()=>{});
         await remove(ref(db, `queue/${uid}`)).catch(()=>{});
+        // ensure send UI is active
+        sendBtn.disabled = false;
+        msgInput.disabled = false;
+        skipBtn.disabled = false;
 
         // ensure room has user entries
         await update(roomRef, { users: { [me]: true, [uid]: true }, createdAt: serverTimestamp() });
@@ -488,6 +552,10 @@
         console.error('createRoomWith error:', err);
         partner = null;
         roomId = null;
+        // restore UI disable
+        sendBtn.disabled = true;
+        msgInput.disabled = true;
+        skipBtn.disabled = true;
       }
     }
 
@@ -526,6 +594,10 @@
       document.getElementById('strAge').textContent = '-';
       document.getElementById('status').textContent = '';
       chatScreen.classList.remove('active');
+      // disable send UI
+      sendBtn.disabled = true;
+      msgInput.disabled = true;
+      skipBtn.disabled = true;
     }
 
     // --- send message ---
@@ -632,6 +704,7 @@
           queueChildListenerAttached = false;
           queueListenerCallback = null;
         }
+        // update visible queue count handled by onValue listener
       } catch (err) {
         console.error('cancel queue error', err);
       }
@@ -681,6 +754,45 @@
       }
     };
 
+    // Skip: notify partner (system message), leave and requeue
+    skipBtn.onclick = async () => {
+      try {
+        if (roomId) {
+          // push a system message so partner sees we've skipped (optional)
+          await push(ref(db, `rooms/${roomId}/messages`), { text: '[User skipped the chat]', uid: '__system__', ts: serverTimestamp() }).catch(()=>{});
+        }
+        // leave current room
+        await leaveRoom();
+
+        // attempt to re-enqueue using saved profile (read from profiles)
+        const myProfSnap = await get(ref(db, `profiles/${me}`));
+        const prof = myProfSnap.exists() ? myProfSnap.val() : null;
+        if (prof) {
+          await enqueueSelf(prof);
+          // try immediate claim with current UI preferences
+          const preferences = {
+            prefLevel: document.getElementById('prefLevel').value || '',
+            prefSchool: document.getElementById('prefSchool').value.trim() || '',
+            prefGender: document.getElementById('prefGender').value.trim() || '',
+            prefMaxAge: document.getElementById('prefMaxAge').value || ''
+          };
+          const claim = await tryClaimCandidate(preferences);
+          if (claim.success) {
+            await createRoomWith(claim.uid);
+            return;
+          } else {
+            loadingScreen.classList.add('active');
+            document.getElementById('loadingText').textContent = 'Looking for next pangga...';
+          }
+        } else {
+          // fallback: show home
+          homeScreen.classList.add('active');
+        }
+      } catch (err) {
+        console.error('skip error', err);
+      }
+    };
+
     // cleanup on page unload
     window.addEventListener('beforeunload', async () => {
       try { await remove(ref(db, `queue/${me}`)); } catch(e){}
@@ -690,4 +802,5 @@
   </script>
 </body>
 </html>
+
 
