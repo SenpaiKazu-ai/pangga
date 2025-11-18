@@ -142,6 +142,44 @@
     #msgInput { flex: 1; background: rgba(255,255,255,0.8); border-radius: 30px; padding: 16px 20px; }
     #sendBtn { padding: 16px 24px; border-radius: 50%; font-size: 1.3em; }
 
+    /* Cute select styling for gender / school preferences */
+    .cute-select {
+      appearance: none;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      background: linear-gradient(135deg, rgba(255,255,255,0.85), rgba(255,255,255,0.7));
+      border-radius: 20px;
+      padding: 14px 18px;
+      font-size: 1em;
+      border: none;
+      box-shadow: 0 6px 18px rgba(255, 138, 215, 0.12), inset 0 -6px 12px rgba(0,0,0,0.02);
+      background-image: linear-gradient(135deg, rgba(255,155,200,0.08), rgba(168,230,255,0.06));
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      background-size: 22px;
+      cursor: pointer;
+    }
+    /* small-row compatible */
+    .small-row .cute-select { flex: 1; }
+
+    /* tweak option text for friendliness (emojis included inside option text) */
+    select.cute-select option {
+      padding: 8px;
+      background: white;
+      color: #333;
+    }
+
+    /* add a subtle arrow using a radial-gradient as fallback for older UA */
+    select.cute-select::-ms-expand { display: none; }
+    select.cute-select {
+      background-image:
+        linear-gradient(135deg, rgba(255,155,200,0.06), rgba(168,230,255,0.06)),
+        radial-gradient(circle at right 16px center, #ff6bc0 8%, transparent 10%);
+      background-position: center right, center right;
+      background-repeat: no-repeat;
+      background-size: calc(1em + 8px) calc(1em + 8px), 18px 18px;
+    }
+
     @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     @keyframes dots { 0%, 20% { content: '.'; } 40% { content: '..'; } 60%, 100% { content: '...'; } }
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
@@ -171,7 +209,15 @@
       </datalist>
       <div class="small-row">
         <input id="age" type="number" min="13" placeholder="Age" required>
-        <input id="gender" placeholder="Gender (optional)">
+        <!-- gender select with emoji choices -->
+        <select id="gender" class="cute-select">
+          <option value="">Gender (optional)</option>
+          <option value="Female">♀ Female</option>
+          <option value="Male">♂ Male</option>
+          <option value="Non-binary">⚧ Non-binary</option>
+          <option value="Other">🌈 Other</option>
+          <option value="Prefer not to say">🙈 Prefer not to say</option>
+        </select>
       </div>
       <textarea id="hobbies" placeholder="Hobbies (optional)"></textarea>
 
@@ -179,11 +225,30 @@
       <div style="margin-top:6px;">
         <label style="font-size:0.9em; color:#555;">Match filters (optional)</label>
         <div class="small-row">
-          <select id="prefLevel"><option value="">Any level</option><option>High School</option><option>College</option><option>Other</option></select>
-          <input id="prefSchool" list="schools" placeholder="School (optional)">
+          <select id="prefLevel" class="cute-select"><option value="">Any level</option><option>High School</option>
+            <option>College</option><option>Other</option></select>
+          <!-- prefSchool as select so choices are consistent and cute -->
+          <select id="prefSchool" class="cute-select">
+            <option value="">Any school</option>
+            <option>📚 Visayas State University</option>
+            <option>📚 Eastern Visayas State University</option>
+            <option>📚 Leyte Normal University</option>
+            <option>📚 UP Tacloban</option>
+            <option>🏫 Leyte National High School</option>
+            <option>🏫 St. Scholastica's Tacloban</option>
+            <option>🌟 Others...</option>
+          </select>
         </div>
         <div class="small-row" style="margin-top:8px;">
-          <input id="prefGender" placeholder="Gender (optional)">
+          <!-- prefGender select with Any option -->
+          <select id="prefGender" class="cute-select">
+            <option value="">Any gender</option>
+            <option value="Female">♀ Female</option>
+            <option value="Male">♂ Male</option>
+            <option value="Non-binary">⚧ Non-binary</option>
+            <option value="Other">🌈 Other</option>
+            <option value="Prefer not to say">🙈 Prefer not to say</option>
+          </select>
           <input id="prefMaxAge" type="number" min="13" placeholder="Max age (optional)">
         </div>
       </div>
@@ -229,34 +294,20 @@
 
   <script type="module">
     // --- Firebase SDK imports ---
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
-    import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
-    import {
-      getDatabase,
-      ref,
-      set,
-      get,
-      remove,
-      push,
-      onChildAdded,
-      onDisconnect,
-      onValue,
-      runTransaction,
-      serverTimestamp,
-      update,
-      off
-    } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-database.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js";
+    import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-auth.js";
+    import { getDatabase, ref, set, get, remove, push, onChildAdded, onDisconnect, onValue, runTransaction, serverTimestamp, update, off } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-database.js";
 
     // --- firebase config (keep yours) ---
     const firebaseConfig = {
-      apiKey: "AIzaSyC7vg_MGjiVvbbvnBAPRLDXnzK4OWflrCw",
-      authDomain: "panggameet-chat.firebaseapp.com",
-      databaseURL: "https://panggameet-chat-default-rtdb.firebaseio.com",
-      projectId: "panggameet-chat",
-      storageBucket: "panggameet-chat.firebasestorage.app",
-      messagingSenderId: "1027749522600",
-      appId: "1:1027749522600:web:b34eed31a14e4eec10a69d"
-    };
+    apiKey: "AIzaSyC7vg_MGjiVvbbvnBAPRLDXnzK4OWflrCw",
+    authDomain: "panggameet-chat.firebaseapp.com",
+    databaseURL: "https://panggameet-chat-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "panggameet-chat",
+    storageBucket: "panggameet-chat.firebasestorage.app",
+    messagingSenderId: "1027749522600",
+    appId: "1:1027749522600:web:b34eed31a14e4eec10a69d"
+  };
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
@@ -269,6 +320,7 @@
     let myQueueRef = null;
     let roomMessagesCallback = null;
     let queueChildListenerAttached = false;
+    let queueListenerCallback = null; // <-- added: keep reference to detach later
     let isQueued = false;
 
     // --- UI refs ---
@@ -282,18 +334,32 @@
     const msgInput = document.getElementById('msgInput');
     const nextBtn = document.getElementById('nextBtn');
 
+    // Add global error handlers to catch runtime problems during debugging
+    window.addEventListener('error', (e) => {
+      console.error('Window error:', e.error || e.message, e);
+      // minimal visible feedback for debugging
+      alert('Runtime error: ' + (e.error?.message || e.message || 'see console'));
+    });
+    window.addEventListener('unhandledrejection', (e) => {
+      console.error('Unhandled rejection:', e.reason);
+      alert('Unhandled rejection: see console');
+    });
+
     // disable until auth ready
     startBtn.disabled = true;
 
     onAuthStateChanged(auth, async (user) => {
+      console.log('onAuthStateChanged', user);
       if (user) {
         me = user.uid;
         startBtn.disabled = false;
+        console.log('Signed in as', me);
       } else {
         try {
           const cred = await signInAnonymously(auth);
           me = cred.user.uid;
           startBtn.disabled = false;
+          console.log('Anonymous sign-in complete', me);
         } catch (err) {
           console.error('Auth failed:', err);
           alert('Authentication failed. Check console.');
@@ -314,38 +380,50 @@
 
     // --- try to atomically claim an existing candidate from queue ---
     async function tryClaimCandidate(preferences) {
-      try {
-        const qSnap = await get(ref(db, 'queue'));
-        if (!qSnap.exists()) return { success:false };
-        const q = qSnap.val();
-        const candidateUids = Object.keys(q).filter(k => k !== me);
-        // sort by ts if available
-        candidateUids.sort((a,b) => (q[a].ts||0) - (q[b].ts||0));
-        for (const uid of candidateUids) {
-          // attempt transaction on queue/{uid}
-          const candidateRef = ref(db, `queue/${uid}`);
-          const res = await runTransaction(candidateRef, (current) => {
-            if (!current) return;             // gone
-            if (current.claimed) return;      // already claimed
-            // claim it temporarily
-            return { ...current, claimed: true, claimedBy: me, claimedAt: Date.now() };
-          }, { applyLocally:false });
+      // helper: attempt a pass using given prefs
+      const attemptPass = async (prefs) => {
+        try {
+          const qSnap = await get(ref(db, 'queue'));
+          if (!qSnap.exists()) return { success:false };
+          const q = qSnap.val();
+          const candidateUids = Object.keys(q).filter(k => k !== me);
+          candidateUids.sort((a,b) => (q[a].ts||0) - (q[b].ts||0));
+          for (const uid of candidateUids) {
+            const candidateRef = ref(db, `queue/${uid}`);
+            const res = await runTransaction(candidateRef, (current) => {
+              if (!current) return;
+              if (current.claimed) return;
+              return { ...current, claimed: true, claimedBy: me, claimedAt: Date.now() };
+            }, { applyLocally:false });
 
-          if (res.committed) {
-            // fetch profile to validate preferences
-            const profSnap = await get(ref(db, `profiles/${uid}`));
-            const prof = profSnap.exists() ? profSnap.val() : {};
-            if (!matchCompatible(prof, preferences)) {
-              // unclaim (best-effort)
-              await update(ref(db, `queue/${uid}`), { claimed:false, claimedBy:null }).catch(()=>{});
-              continue;
+            if (res.committed) {
+              const profSnap = await get(ref(db, `profiles/${uid}`));
+              const prof = profSnap.exists() ? profSnap.val() : {};
+              if (!matchCompatible(prof, prefs)) {
+                // unclaim (best-effort)
+                await update(ref(db, `queue/${uid}`), { claimed:false, claimedBy:null }).catch(()=>{});
+                continue;
+              }
+              return { success:true, uid };
             }
-            return { success:true, uid };
           }
+        } catch (err) {
+          console.warn('attemptPass error', err);
         }
-      } catch (err) {
-        console.warn('tryClaimCandidate error', err);
+        return { success:false };
+      };
+
+      // 1) strict attempt using provided preferences
+      const strict = await attemptPass(preferences || {});
+      if (strict.success) return strict;
+
+      // 2) fallback: if a school preference existed, retry ignoring the school (accept any school)
+      if (preferences && preferences.prefSchool && preferences.prefSchool !== '') {
+        const relaxed = { ...preferences, prefSchool: '' };
+        const relaxedRes = await attemptPass(relaxed);
+        if (relaxedRes.success) return relaxedRes;
       }
+
       return { success:false };
     }
 
@@ -460,91 +538,103 @@
       }
     }
 
-    // --- START BUTTON handler ---
+    // --- START BUTTON handler (wrapped + logging + detachable queue listener) ---
     startBtn.onclick = async () => {
-      if (!me) return alert('Please wait a moment for authentication...');
+      try {
+        if (!me) return alert('Please wait a moment for authentication...');
+        console.log('Start clicked, me=', me);
 
-      // gather profile & preferences
-      const level = document.getElementById('level').value;
-      const school = document.getElementById('school').value.trim();
-      const age = document.getElementById('age').value;
-      const gender = document.getElementById('gender').value.trim();
-      const hobbies = document.getElementById('hobbies').value.trim();
+        // gather profile & preferences
+        const level = document.getElementById('level').value;
+        const school = document.getElementById('school').value.trim();
+        const age = document.getElementById('age').value;
+        const gender = document.getElementById('gender').value.trim();
+        const hobbies = document.getElementById('hobbies').value.trim();
 
-      if (!level || !school || !age) return alert('Fill up everything!');
+        if (!level || !school || !age) return alert('Fill up everything!');
 
-      const profile = { level, school, age: Number(age), gender: gender || null, hobbies: hobbies || null, updatedAt: serverTimestamp() };
-      // save profile to DB (so other clients can read it)
-      await set(ref(db, `profiles/${me}`), profile);
+        const profile = { level, school, age: Number(age), gender: gender || null, hobbies: hobbies || null, updatedAt: serverTimestamp() };
+        console.log('Saving profile', profile);
+        await set(ref(db, `profiles/${me}`), profile);
 
-      // update my UI card
-      document.getElementById('myLevel').textContent = level;
-      document.getElementById('mySchool').textContent = school;
-      document.getElementById('myAge').textContent = age;
+        // update my UI card
+        document.getElementById('myLevel').textContent = level;
+        document.getElementById('mySchool').textContent = school;
+        document.getElementById('myAge').textContent = age;
 
-      // preferences
-      const preferences = {
-        prefLevel: document.getElementById('prefLevel').value || '',
-        prefSchool: document.getElementById('prefSchool').value.trim() || '',
-        prefGender: document.getElementById('prefGender').value.trim() || '',
-        prefMaxAge: document.getElementById('prefMaxAge').value || ''
-      };
+        // preferences
+        const preferences = {
+          prefLevel: document.getElementById('prefLevel').value || '',
+          prefSchool: document.getElementById('prefSchool').value.trim() || '',
+          prefGender: document.getElementById('prefGender').value.trim() || '',
+          prefMaxAge: document.getElementById('prefMaxAge').value || ''
+        };
 
-      // UI: show loading
-      homeScreen.classList.remove('active');
-      loadingScreen.classList.add('active');
-      document.getElementById('loadingText').textContent = 'Finding you a langga';
+        // UI: show loading
+        homeScreen.classList.remove('active');
+        loadingScreen.classList.add('active');
+        document.getElementById('loadingText').textContent = 'Finding you a langga';
 
-      // enqueue self
-      await enqueueSelf(profile);
+        // enqueue self
+        await enqueueSelf(profile);
+        console.log('Enqueued', me);
 
-      // try immediate claim
-      const claim = await tryClaimCandidate(preferences);
-      if (claim.success) {
-        await createRoomWith(claim.uid);
-        return;
-      }
+        // try immediate claim
+        const claim = await tryClaimCandidate(preferences);
+        if (claim.success) {
+          console.log('Immediate claim success', claim.uid);
+          await createRoomWith(claim.uid);
+          return;
+        }
 
-      // fallback: listen for new queue entrants and attempt to claim them
-      if (!queueChildListenerAttached) {
-        queueChildListenerAttached = true;
-        onChildAdded(ref(db, 'queue'), async (snap) => {
-          try {
-            const uid = snap.key;
-            if (uid === me || partner) return;
-            // Attempt to claim this uid atomically
-            const candidateRef = ref(db, `queue/${uid}`);
-            const res = await runTransaction(candidateRef, (current) => {
-              if (!current) return;
-              if (current.claimed) return;
-              return { ...current, claimed:true, claimedBy: me, claimedAt: Date.now() };
-            }, { applyLocally:false });
-
-            if (res.committed) {
-              // double-check compatibility using profiles
-              const profSnap = await get(ref(db, `profiles/${uid}`));
-              const prof = profSnap.exists() ? profSnap.val() : {};
-              if (!matchCompatible(prof, preferences)) {
-                // unclaim (best-effort)
-                await update(ref(db, `queue/${uid}`), { claimed:false, claimedBy:null }).catch(()=>{});
-                return;
+        // fallback: listen for new queue entrants and attempt to claim them
+        if (!queueChildListenerAttached) {
+          queueChildListenerAttached = true;
+          queueListenerCallback = async (snap) => {
+            try {
+              const uid = snap.key;
+              if (!uid) return;
+              if (uid === me || partner) return;
+              console.log('Queue child added', uid);
+              // Reuse tryClaimCandidate which does strict -> fallback (ignores school) attempts.
+              const claim = await tryClaimCandidate(preferences);
+              if (claim.success) {
+                await createRoomWith(claim.uid);
               }
-              await createRoomWith(uid);
+            } catch (err) {
+              console.error('onChildAdded pairing error:', err);
             }
-          } catch (err) {
-            console.error('onChildAdded pairing error:', err);
-          }
-        });
+          };
+          onChildAdded(ref(db, 'queue'), queueListenerCallback);
+        }
+      } catch (err) {
+        console.error('startBtn handler error:', err);
+        alert('Error during start flow. See console.');
       }
     };
 
     // cancel queue if user changes mind while waiting
     cancelBtn.onclick = async () => {
-      if (!me) return;
-      await remove(ref(db, `queue/${me}`)).catch(()=>{});
-      isQueued = false;
-      loadingScreen.classList.remove('active');
-      homeScreen.classList.add('active');
+      try {
+        if (!me) return;
+        await remove(ref(db, `queue/${me}`)).catch(()=>{});
+        isQueued = false;
+        loadingScreen.classList.remove('active');
+        homeScreen.classList.add('active');
+
+        // detach queue listener if attached
+        if (queueChildListenerAttached && queueListenerCallback) {
+          try {
+            off(ref(db, 'queue'), 'child_added', queueListenerCallback);
+          } catch (e) {
+            try { off(ref(db, 'queue')); } catch(e) {}
+          }
+          queueChildListenerAttached = false;
+          queueListenerCallback = null;
+        }
+      } catch (err) {
+        console.error('cancel queue error', err);
+      }
     };
 
     // send message UI
