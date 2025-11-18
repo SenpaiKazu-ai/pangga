@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>PanggaMeet ♡</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Comfortaa:wght@700&display=swap');
-    
+
     * { margin:0; padding:0; box-sizing:border-box; }
     body {
       font-family: 'Poppins', sans-serif;
@@ -17,147 +17,119 @@
       align-items: center;
       justify-content: center;
       color: #333;
-      overflow: hidden;
     }
     #container {
       width: 92%;
-      max-width: 420px;
-      background: rgba(255, 255, 255, 0.28);
-      backdrop-filter: blur(20px);
+      max-width: 440px;
+      background: rgba(255, 255, 255, 0.32);
+      backdrop-filter: blur(18px);
       border-radius: 28px;
-      box-shadow: 0 15px 45px rgba(0,0,0,0.15);
+      box-shadow: 0 18px 46px rgba(0,0,0,0.12);
       overflow: hidden;
-      border: 1px solid rgba(255,255,255,0.4);
+      border: 1px solid rgba(255,255,255,0.45);
     }
     header {
       background: linear-gradient(135deg, #ff9eca, #a8e6ff);
-      padding: 32px 20px;
+      padding: 28px 20px;
       text-align: center;
       color: white;
     }
     h1 {
       font-family: 'Comfortaa', cursive;
-      font-size: 2.8em;
+      font-size: 2.6em;
       margin: 0;
-      text-shadow: 0 4px 10px rgba(0,0,0,0.2);
+      text-shadow: 0 4px 10px rgba(0,0,0,0.15);
     }
-
-    .screen { padding: 28px; display: none; }
-    .screen.active { display: block; animation: fadeIn 0.6s; }
+    .screen { padding: 20px 22px 28px; display: none; }
+    .screen.active { display: block; animation: fadeIn 0.45s; }
 
     input, select, textarea {
       width: 100%;
-      padding: 16px 18px;
-      margin: 12px 0;
+      padding: 14px 16px;
+      margin: 10px 0;
       border: none;
-      border-radius: 20px;
-      background: rgba(255,255,255,0.7);
-      font-size: 1em;
+      border-radius: 16px;
+      background: rgba(255,255,255,0.78);
+      font-size: 0.98em;
+      box-shadow: inset 0 -1px 0 rgba(0,0,0,0.03);
     }
     input:focus, select:focus, textarea:focus {
       outline: none;
-      background: rgba(255,255,255,0.95);
-      transform: scale(1.02);
+      background: rgba(255,255,255,0.96);
+      transform: scale(1.01);
     }
-    textarea { height: 80px; resize: none; }
+    textarea { height: 70px; resize: none; }
 
     button {
       background: linear-gradient(135deg, #ff9eca, #a8e6ff);
       color: white;
       border: none;
-      padding: 16px 32px;
+      padding: 14px 20px;
       border-radius: 50px;
-      font-size: 1.1em;
+      font-size: 1.02em;
       font-weight: 600;
       cursor: pointer;
       width: 100%;
-      margin-top: 20px;
-      box-shadow: 0 10px 30px rgba(255, 138, 215, 0.4);
+      margin-top: 12px;
+      box-shadow: 0 10px 28px rgba(255, 138, 215, 0.26);
     }
-    button:hover { transform: translateY(-4px); }
-
-    .small-row { display: flex; gap: 12px; }
+    .mutedBtn { background:#eee; color:#444; box-shadow:none; border-radius:14px; padding:10px; font-weight:600; }
+    .small-row { display: flex; gap: 10px; }
     .small-row input { flex: 1; }
 
-    /* NEW LOADING SCREEN */
-    #loadingScreen {
-      text-align: center;
-      padding: 60px 20px;
-    }
-    .spinner {
-      font-size: 3.8em;
-      margin-bottom: 18px;
-      color: #ff6bc0;
-      display: inline-block;
-      /* heartbeat effect */
-      animation: beat 1s ease-in-out infinite;
-    }
+    /* Loading */
+    #loadingScreen { text-align:center; padding:36px 20px; }
+    .spinner { font-size: 3.2em; margin-bottom: 12px; color:#ff6bc0; animation: beat 1s ease-in-out infinite; display:inline-block; }
     @keyframes beat { 0%,100% { transform: scale(1); } 50% { transform: scale(1.12); } }
-    #loadingText {
-      font-size: 1.4em;
-      font-weight: 600;
-      color: #ff6bc0;
-    }
-    .dots {
-      display: inline-block;
-    }
-    .dots::after {
-      content: '...';
-      animation: dots 1.5s infinite;
-    }
+    #loadingText { font-size:1.2em; font-weight:600; color:#ff6bc0; }
 
-    .profiles { display: flex; gap: 16px; margin: 20px 0; }
-    .profile-card {
-      flex: 1;
-      background: rgba(255,255,255,0.6);
-      border-radius: 20px;
-      padding: 16px;
-      text-align: center;
-    }
-    .profile h4 { color: #ff6bc0; margin-bottom: 10px; }
+    .profiles { display:flex; gap:12px; margin:18px 0; }
+    .profile { flex:1; background: rgba(255,255,255,0.6); border-radius:12px; padding:10px; text-align:center; }
+    .profile h4 { color:#ff6bc0; margin-bottom:6px; font-size:1em; }
 
     #messages {
-      height: 360px;
-      overflow-y: auto;
-      padding: 20px;
-      background: rgba(255,255,255,0.4);
-      border-radius: 20px;
-      margin: 15px 0;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
+      height:360px;
+      overflow-y:auto;
+      padding:16px;
+      background: rgba(255,255,255,0.42);
+      border-radius:16px;
+      margin: 10px 0;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
     }
-    .msg {
-      max-width: 80%;
-      padding: 12px 18px;
-      border-radius: 20px;
-      line-height: 1.5;
-      animation: msgPop 0.4s;
-    }
-    .you { align-self: flex-end; background: linear-gradient(135deg, #ff9eca, #ffa8e1); color: white; }
-    .stranger { align-self: flex-start; background: rgba(255,255,255,0.9); }
+    .msg { max-width:78%; padding:10px 14px; border-radius:16px; line-height:1.45; animation: msgPop 0.35s; word-break:break-word; }
+    .you { align-self:flex-end; background: linear-gradient(135deg,#ff9eca,#ffa8e1); color:white; }
+    .stranger { align-self:flex-start; background: rgba(255,255,255,0.95); color:#222; }
 
-    #inputArea { display: flex; gap: 12px; margin-top: 10px; }
-    #msgInput { flex: 1; background: rgba(255,255,255,0.8); border-radius: 30px; padding: 16px 20px; }
-    #sendBtn { padding: 16px 24px; border-radius: 50%; font-size: 1.3em; }
+    #inputArea { display:flex; gap:10px; margin-top:8px; align-items:center; }
+    #msgInput { flex:1; background: rgba(255,255,255,0.88); border-radius:999px; padding:12px 16px; }
+    #sendBtn { padding:12px 14px; border-radius:50%; font-size:1.1em; }
 
-    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-    @keyframes dots { 0%, 20% { content: '.'; } 40% { content: '..'; } 60%, 100% { content: '...'; } }
-    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-    @keyframes msgPop { from { opacity: 0; transform: scale(0.8); } to { opacity: 1; transform: scale(1); } }
+    @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+    @keyframes msgPop { from{opacity:0; transform:scale(.93)} to{opacity:1; transform:scale(1)} }
+
+    /* small helpers */
+    .info { font-size:0.92em; color:#666; margin-top:6px; text-align:center; }
+    .flex-row { display:flex; gap:8px; align-items:center; justify-content:space-between; }
   </style>
 </head>
 <body>
-
   <div id="container">
     <header>
       <h1>PanggaMeet</h1>
-      <p>Chat with students around Leyte ♡</p>
+      <p style="margin-top:6px; font-weight:500; opacity:.95;">Chat with students around Leyte ♡</p>
     </header>
 
-    <!-- Home -->
+    <!-- HOME -->
     <div id="home" class="screen active">
-      <select id="level" required><option value="">Your Level</option><option>High School</option><option>College</option><option>Other</option></select>
+      <select id="level" required>
+        <option value="">Your Level</option>
+        <option>High School</option>
+        <option>College</option>
+        <option>Other</option>
+      </select>
+
       <input list="schools" id="school" placeholder="Your school" required>
       <datalist id="schools">
         <option>Visayas State University</option>
@@ -168,36 +140,56 @@
         <option>St. Scholastica's Tacloban</option>
         <option>Others...</option>
       </datalist>
+
       <div class="small-row">
         <input id="age" type="number" min="13" placeholder="Age" required>
         <input id="gender" placeholder="Gender (optional)">
       </div>
+
       <textarea id="hobbies" placeholder="Hobbies (optional)"></textarea>
+
+      <!-- Matching preferences (filtering) -->
+      <div style="margin-top:8px;">
+        <label style="font-size:0.95em; color:#444;">Match filters (optional):</label>
+        <div class="small-row" style="margin-top:8px;">
+          <select id="prefLevel"><option value="">Any level</option><option>High School</option><option>College</option><option>Other</option></select>
+          <input id="prefSchool" list="schools" placeholder="School (or leave blank)">
+        </div>
+        <div style="margin-top:8px;" class="small-row">
+          <input id="prefGender" placeholder="Gender (optional)">
+          <input id="prefMaxAge" type="number" min="13" placeholder="Max age (optional)">
+        </div>
+      </div>
+
       <button id="startBtn">♡ Start Chatting ♡</button>
+      <div class="info">We'll try to match by your filters if possible — otherwise you'll get a nearby match ❤️</div>
     </div>
 
-    <!-- NEW LOADING SCREEN -->
+    <!-- LOADING -->
     <div id="loadingScreen" class="screen">
       <div class="spinner"><i class="fa-solid fa-heart"></i></div>
-      <div id="loadingText">Finding you a langga<span class="dots"></span></div>
+      <div id="loadingText">Finding you a langga<span id="dots">...</span></div>
+      <div style="margin-top:12px;">
+        <button id="cancelQueue" class="mutedBtn">Cancel</button>
+      </div>
     </div>
 
-    <!-- Chat -->
+    <!-- CHAT -->
     <div id="chat" class="screen">
-      <div id="status" style="text-align:center;font-size:1.3em;margin:20px;color:#ff6bc0;font-weight:600;"></div>
+      <div id="status" style="text-align:center;font-size:1.05em;margin:10px;color:#ff6bc0;font-weight:600;"></div>
 
       <div class="profiles">
         <div class="profile">
           <h4>You</h4>
-          <p><b>School:</b> <span id="mySchool">-</span></p>
-          <p><b>Level:</b> <span id="myLevel">-</span></p>
-          <p><b>Age:</b> <span id="myAge">-</span></p>
+          <p style="font-size:.9em;"><b>School:</b> <span id="mySchool">-</span></p>
+          <p style="font-size:.9em;"><b>Level:</b> <span id="myLevel">-</span></p>
+          <p style="font-size:.9em;"><b>Age:</b> <span id="myAge">-</span></p>
         </div>
         <div class="profile">
           <h4>Stranger</h4>
-          <p><b>School:</b> <span id="strSchool">-</span></p>
-          <p><b>Level:</b> <span id="strLevel">-</span></p>
-          <p><b>Age:</b> <span id="strAge">-</span></p>
+          <p style="font-size:.9em;"><b>School:</b> <span id="strSchool">-</span></p>
+          <p style="font-size:.9em;"><b>Level:</b> <span id="strLevel">-</span></p>
+          <p style="font-size:.9em;"><b>Age:</b> <span id="strAge">-</span></p>
         </div>
       </div>
 
@@ -205,18 +197,39 @@
 
       <div id="inputArea">
         <input type="text" id="msgInput" placeholder="Say something sweet...">
-        <button id="sendBtn">Send</button>
+        <button id="sendBtn" title="Send"><i class="fa-solid fa-paper-plane"></i></button>
       </div>
-      <button id="nextBtn" style="background:#ccc;margin-top:15px;">Next Pangga →</button>
+
+      <div class="flex-row" style="margin-top:12px;">
+        <button id="nextBtn" class="mutedBtn">Next Pangga →</button>
+        <button id="leaveBtn" class="mutedBtn" style="width:140px;">Leave</button>
+      </div>
     </div>
   </div>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
-    import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
-    // Added `get` and `push` which were being used but not imported
-    import { getDatabase, ref, set, onValue, onDisconnect, remove, serverTimestamp, onChildAdded, get, push } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-database.js";
+    import {
+      getAuth,
+      signInAnonymously,
+      onAuthStateChanged
+    } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
+    import {
+      getDatabase,
+      ref,
+      set,
+      onChildAdded,
+      onDisconnect,
+      remove,
+      serverTimestamp,
+      get,
+      push,
+      runTransaction,
+      off,
+      update
+    } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-database.js";
 
+    // ==== CONFIG - keep your config as-is ====
     const firebaseConfig = {
       apiKey: "AIzaSyC7vg_MGjiVvbbvnBAPRLDXnzK4OWflrCw",
       authDomain: "panggameet-chat.firebaseapp.com",
@@ -231,103 +244,385 @@
     const auth = getAuth(app);
     const db = getDatabase(app);
 
+    // State
     let me = null;
-    let partner = null;
+    let partner = null; // partner UID
+    let roomId = null;
     let roomRef = null;
     let myQueueRef = null;
+    let queueListenerAttached = false;
+    let messagesListenerCallback = null; // store callback to detach
+    let isQueued = false;
 
-    onAuthStateChanged(auth, user => {
-      if (user) me = user.uid;
-      else signInAnonymously(auth);
+    // UI elements
+    const startBtn = document.getElementById('startBtn');
+    const cancelQueue = document.getElementById('cancelQueue');
+    const loadingScreen = document.getElementById('loadingScreen');
+    const homeScreen = document.getElementById('home');
+    const chatScreen = document.getElementById('chat');
+    const loadingText = document.getElementById('loadingText');
+    const messagesEl = document.getElementById('messages');
+
+    // disable start until auth ready
+    startBtn.disabled = true;
+
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        me = user.uid;
+        startBtn.disabled = false;
+      } else {
+        try {
+          const cred = await signInAnonymously(auth);
+          me = cred.user.uid;
+          startBtn.disabled = false;
+        } catch (err) {
+          console.error('Auth failed:', err);
+          alert('Authentication failed. Check console.');
+        }
+      }
     });
 
-    document.getElementById('startBtn').onclick = async () => {
-      if (!me) return alert('Wait a sec...');
+    // Utility: update my profile locally & in DB
+    async function saveProfile(profile) {
+      if (!me) return;
+      try {
+        await set(ref(db, `profiles/${me}`), profile);
+      } catch (err) {
+        console.error('saveProfile error', err);
+      }
+    }
 
+    // Atomic attempt to claim a candidate from queue
+    // returns { success, uid } where uid is the matched candidate's uid
+    async function tryClaimCandidate(preferences) {
+      // We'll read the whole queue once and try to claim a candidate by transaction on its node
+      try {
+        const qSnap = await get(ref(db, 'queue'));
+        if (!qSnap.exists()) return { success:false };
+
+        const q = qSnap.val();
+        const candidateUids = Object.keys(q).filter(k => k !== me);
+
+        // Sort candidates by timestamp (older first)
+        candidateUids.sort((a,b) => (q[a] || 0) - (q[b] || 0));
+
+        for (const uid of candidateUids) {
+          // attempt to run a transaction on queue/{uid} to mark it as claimed
+          const candidateRef = ref(db, `queue/${uid}`);
+          const res = await runTransaction(candidateRef, (current) => {
+            // if current is null => candidate left; if current has ".claimed" => already claimed
+            if (!current) return; // abort
+            if (typeof current === 'object' && current.claimed) return; // abort
+            // check preference compatibility (we need profile data to decide)
+            return { ...current, claimed: true, claimedBy: me, claimedAt: Date.now() };
+          }, { applyLocally: false });
+
+          if (res.committed) {
+            // But we must also check compatibility using their profile. We'll fetch profile and check filters.
+            const profSnap = await get(ref(db, `profiles/${uid}`));
+            const prof = profSnap.exists() ? profSnap.val() : {};
+            const ok = matchCompatible(prof, preferences);
+            if (!ok) {
+              // Not compatible — unclaim (best-effort)
+              await remove(ref(db, `queue/${uid}/claimed`)).catch(()=>{});
+              await update(ref(db, `queue/${uid}`), { claimed: false, claimedBy: null }).catch(()=>{});
+              continue;
+            }
+            return { success:true, uid };
+          } else {
+            // transaction didn't commit -> try next candidate
+            continue;
+          }
+        }
+      } catch (err) {
+        console.warn('tryClaimCandidate error', err);
+      }
+      return { success:false };
+    }
+
+    // Compatibility check function based on preferences (simple)
+    function matchCompatible(profile, preferences) {
+      if (!profile) return true;
+      // preferences may be empty string
+      if (!preferences) return true;
+      // level
+      if (preferences.prefLevel && preferences.prefLevel !== '' && profile.level !== preferences.prefLevel) return false;
+      if (preferences.prefSchool && preferences.prefSchool !== '' && profile.school && profile.school.toLowerCase() !== preferences.prefSchool.toLowerCase()) return false;
+      if (preferences.prefGender && preferences.prefGender !== '' && profile.gender && profile.gender.toLowerCase() !== preferences.prefGender.toLowerCase()) return false;
+      if (preferences.prefMaxAge && preferences.prefMaxAge !== '' && profile.age && Number(profile.age) > Number(preferences.prefMaxAge)) return false;
+      return true;
+    }
+
+    // Create or open room with uid — ensures no duplicate room creation
+    async function createRoomWith(uid) {
+      if (!me || partner || uid === me) return;
+      partner = uid;
+      roomId = me < uid ? `${me}_${uid}` : `${uid}_${me}`;
+      roomRef = ref(db, `rooms/${roomId}`);
+      try {
+        // Remove both from queue (best-effort)
+        await remove(ref(db, `queue/${me}`)).catch(()=>{});
+        await remove(ref(db, `queue/${uid}`)).catch(()=>{});
+
+        // Ensure the room exists with both users; use update so we don't overwrite messages
+        await update(roomRef, { users: { [me]: true, [uid]: true }, createdAt: serverTimestamp() });
+
+        // fetch partner profile once to show
+        const p = await get(ref(db, `profiles/${uid}`));
+        if (p && p.val()) {
+          const d = p.val();
+          document.getElementById('strLevel').textContent = d.level || '-';
+          document.getElementById('strSchool').textContent = d.school || '-';
+          document.getElementById('strAge').textContent = d.age || '-';
+        }
+
+        // SWITCH UI
+        loadingScreen.classList.remove('active');
+        chatScreen.classList.add('active');
+        document.getElementById('status').textContent = 'Connected na! 💕';
+
+        // attach messages listener (and make sure we only attach once per room)
+        attachMessagesListener();
+      } catch (err) {
+        console.error('createRoomWith error:', err);
+        partner = null;
+        roomRef = null;
+        roomId = null;
+      }
+    }
+
+    // Messages listener attach/detach helpers
+    function attachMessagesListener() {
+      if (!roomId || !roomRef) return;
+      // detach old if present
+      detachMessagesListener();
+
+      messagesListenerCallback = (snap) => {
+        const m = snap.val();
+        if (!m) return;
+        const div = document.createElement('div');
+        div.className = `msg ${m.uid === me ? 'you' : 'stranger'}`;
+        div.textContent = m.text;
+        messagesEl.appendChild(div);
+        messagesEl.scrollTop = messagesEl.scrollHeight;
+      };
+      onChildAdded(ref(db, `rooms/${roomId}/messages`), messagesListenerCallback);
+    }
+
+    function detachMessagesListener() {
+      if (!messagesListenerCallback || !roomId) return;
+      try {
+        off(ref(db, `rooms/${roomId}/messages`), 'child_added', messagesListenerCallback);
+      } catch (err) {
+        // some SDK versions allow off(ref) without args — we try safe removal
+        try { off(ref(db, `rooms/${roomId}/messages`)); } catch(e){}
+      }
+      messagesListenerCallback = null;
+    }
+
+    // put myself into queue with metadata
+    async function enqueueSelf(profile, preferences) {
+      if (!me) return;
+      myQueueRef = ref(db, `queue/${me}`);
+      const payload = {
+        uid: me,
+        ts: Date.now(),
+        level: profile.level || null,
+        school: profile.school || null,
+        gender: profile.gender || null,
+        age: profile.age || null,
+        // preferences are not stored here — only matching attempt uses them client-side
+      };
+      await set(myQueueRef, payload);
+      onDisconnect(myQueueRef).remove();
+      isQueued = true;
+    }
+
+    // leave room & cleanup
+    async function leaveRoom() {
+      // detach listeners
+      detachMessagesListener();
+
+      // remove room participants entry for this user
+      if (roomRef && me) {
+        try {
+          // remove our presence inside room users (not deleting whole room)
+          await remove(ref(db, `rooms/${roomId}/users/${me}`)).catch(()=>{});
+        } catch(e) { console.warn('leaveRoom remove user', e); }
+      }
+
+      // reset local state
+      partner = null;
+      if (roomId) roomId = null;
+      roomRef = null;
+      messagesEl.innerHTML = '';
+      document.getElementById('strLevel').textContent = '-';
+      document.getElementById('strSchool').textContent = '-';
+      document.getElementById('strAge').textContent = '-';
+      document.getElementById('status').textContent = '';
+      chatScreen.classList.remove('active');
+    }
+
+    // Send message helper
+    async function sendMessage(text) {
+      if (!roomId || !text) return;
+      try {
+        await push(ref(db, `rooms/${roomId}/messages`), { text, uid: me, ts: serverTimestamp() });
+      } catch (err) {
+        console.error('Send message error', err);
+      }
+    }
+
+    // UI actions
+    startBtn.onclick = async () => {
+      if (!me) return alert('Please wait for authentication...');
       const level = document.getElementById('level').value;
       const school = document.getElementById('school').value.trim();
       const age = document.getElementById('age').value;
-      if (!level || !school || !age) return alert('Fill up everything!');
+      const gender = document.getElementById('gender').value.trim();
+      const hobbies = document.getElementById('hobbies').value.trim();
 
-      await set(ref(db, `profiles/${me}`), { level, school, age: Number(age) });
+      if (!level || !school || !age) return alert('Fill up everything (level, school, age).');
 
+      const profile = { level, school, age: Number(age), gender: gender || null, hobbies: hobbies || null, updatedAt: serverTimestamp() };
+      await saveProfile(profile);
+
+      // Update UI
       document.getElementById('myLevel').textContent = level;
       document.getElementById('mySchool').textContent = school;
       document.getElementById('myAge').textContent = age;
 
-      // SWITCH TO LOADING SCREEN
-      document.getElementById('home').classList.remove('active');
-      document.getElementById('loadingScreen').classList.add('active');
-      // update text explicitly and disable start button while searching
-      document.getElementById('loadingText').textContent = 'Finding you a langga';
-      document.getElementById('startBtn').disabled = true;
+      // prepare preference object
+      const preferences = {
+        prefLevel: document.getElementById('prefLevel').value || '',
+        prefSchool: document.getElementById('prefSchool').value.trim() || '',
+        prefGender: document.getElementById('prefGender').value.trim() || '',
+        prefMaxAge: document.getElementById('prefMaxAge').value || ''
+      };
 
-      myQueueRef = ref(db, `queue/${me}`);
-      await set(myQueueRef, serverTimestamp());
-      onDisconnect(myQueueRef).remove();
+      // Switch UI to loading
+      homeScreen.classList.remove('active');
+      loadingScreen.classList.add('active');
+      loadingText.textContent = 'Finding you a langga';
 
-      onChildAdded(ref(db, 'queue'), async (snap) => {
-        try {
-         const uid = snap.key;
-         if (uid === me || partner) return;
+      // enqueue ourselves
+      await enqueueSelf(profile, preferences);
 
-         partner = uid;
-         const roomId = me < uid ? `${me}_${uid}` : `${uid}_${me}`;
-         roomRef = ref(db, `rooms/${roomId}`);
-         await set(roomRef, { users: { [me]: true, [uid]: true } });
-         await remove(ref(db, `queue/${me}`));
-         await remove(ref(db, `queue/${uid}`));
-
-        const p = await get(ref(db, `profiles/${uid}`));
-        if (p && p.val()) {
-          const d = p.val();
-          document.getElementById('strLevel').textContent = d.level;
-          document.getElementById('strSchool').textContent = d.school;
-          document.getElementById('strAge').textContent = d.age;
-        }
-
-         // SWITCH TO CHAT
-         document.getElementById('loadingScreen').classList.remove('active');
-         document.getElementById('chat').classList.add('active');
-         document.getElementById('status').textContent = 'Connected na! 💕';
-
-         // Start listening to messages
-         onChildAdded(ref(db, `rooms/${roomId}/messages`), (snap) => {
-           const m = snap.val();
-           const div = document.createElement('div');
-           div.className = `msg ${m.uid === me ? 'you' : 'stranger'}`;
-           div.textContent = m.text;
-           document.getElementById('messages').appendChild(div);
-           document.getElementById('messages').scrollTop = document.getElementById('messages').scrollHeight;
-         });
-        } catch (err) {
-          console.error('Error during pairing:', err);
-          alert('There was an error while trying to pair. Check console for details.');
-          // return to home or clear state if needed, re-enable start
-          document.getElementById('startBtn').disabled = false;
-          // optional: show home again so user can retry
-          document.getElementById('loadingScreen').classList.remove('active');
-          document.getElementById('home').classList.add('active');
-        }
-       });
-     };
-
-    // Send message
-    const send = () => {
-      const text = document.getElementById('msgInput').value.trim();
-      if (!text || !roomRef) return;
-      try {
-        push(ref(db, `rooms/${roomRef.key}/messages`), { text, uid: me, ts: serverTimestamp() });
-      } catch (err) {
-        console.error('Send message error:', err);
-        alert('Failed to send message. Check console for details.');
+      // First, try to find an existing candidate and claim atomically
+      const claim = await tryClaimCandidate(preferences);
+      if (claim.success) {
+        // create room with claimed uid
+        await createRoomWith(claim.uid);
+        return;
       }
-      document.getElementById('msgInput').value = '';
-    };
-    document.getElementById('sendBtn').onclick = send;
-    document.getElementById('msgInput').addEventListener('keypress', e => e.key === 'Enter' && send());
 
-    document.getElementById('nextBtn').onclick = () => location.reload();
+      // If not found yet — attach a listener to queue to react to new arrivals that match preferences.
+      if (!queueListenerAttached) {
+        queueListenerAttached = true;
+        onChildAdded(ref(db, 'queue'), async (snap) => {
+          try {
+            const uid = snap.key;
+            // ignore self and if already paired locally
+            if (uid === me || partner) return;
+            const candidate = snap.val();
+            // Try to claim this node with a transaction
+            const candidateRef = ref(db, `queue/${uid}`);
+            const res = await runTransaction(candidateRef, (current) => {
+              if (!current) return; // already gone
+              if (current.claimed) return; // already claimed
+              // quick compatibility check using limited queue metadata
+              // (we do full profile validation later in createRoomWith)
+              return { ...current, claimed: true, claimedBy: me, claimedAt: Date.now() };
+            }, { applyLocally:false });
+
+            if (res.committed) {
+              // Double-check compatibility with stored profile (to avoid stale queue metadata)
+              const profSnap = await get(ref(db, `profiles/${uid}`));
+              const prof = profSnap.exists() ? profSnap.val() : {};
+              if (!matchCompatible(prof, preferences)) {
+                // unclaim (best effort)
+                await update(ref(db, `queue/${uid}`), { claimed: false, claimedBy: null }).catch(()=>{});
+                return;
+              }
+              await createRoomWith(uid);
+            } else {
+              // not available — ignore
+            }
+          } catch (err) {
+            console.error('onChildAdded pairing error:', err);
+          }
+        });
+      }
+
+    };
+
+    // cancel queue (before matched)
+    cancelQueue.onclick = async () => {
+      if (!me) return;
+      await remove(ref(db, `queue/${me}`)).catch(()=>{});
+      isQueued = false;
+      loadingScreen.classList.remove('active');
+      homeScreen.classList.add('active');
+    };
+
+    // send
+    const sendBtn = document.getElementById('sendBtn');
+    const msgInput = document.getElementById('msgInput');
+    sendBtn.onclick = async () => {
+      const text = msgInput.value.trim();
+      if (!text) return;
+      await sendMessage(text);
+      msgInput.value = '';
+    };
+    msgInput.addEventListener('keypress', e => { if (e.key === 'Enter') sendBtn.click(); });
+
+    // Next: leave current room gracefully and immediately requeue with same filters
+    document.getElementById('nextBtn').onclick = async () => {
+      // read preferences from UI (they remain)
+      const preferences = {
+        prefLevel: document.getElementById('prefLevel').value || '',
+        prefSchool: document.getElementById('prefSchool').value.trim() || '',
+        prefGender: document.getElementById('prefGender').value.trim() || '',
+        prefMaxAge: document.getElementById('prefMaxAge').value || ''
+      };
+      // leave
+      await leaveRoom();
+      // immediately requeue with current profile
+      const level = document.getElementById('myLevel').textContent || document.getElementById('level').value;
+      const school = document.getElementById('mySchool').textContent || document.getElementById('school').value;
+      const age = document.getElementById('myAge').textContent || document.getElementById('age').value;
+      const gender = document.getElementById('gender').value.trim();
+      const profile = { level, school, age, gender };
+      // show loading
+      loadingScreen.classList.add('active');
+      await enqueueSelf(profile, preferences);
+      // try claim immediately
+      const claim = await tryClaimCandidate(preferences);
+      if (claim.success) {
+        await createRoomWith(claim.uid);
+        return;
+      } else {
+        // remain waiting; onChildAdded handler will pick up new arrivals
+        document.getElementById('loadingText').textContent = 'Looking for next pangga...';
+      }
+    };
+
+    // Leave button allows user to exit chat entirely
+    document.getElementById('leaveBtn').onclick = async () => {
+      await leaveRoom();
+      // ensure removed from queue
+      await remove(ref(db, `queue/${me}`)).catch(()=>{});
+      loadingScreen.classList.remove('active');
+      homeScreen.classList.add('active');
+    };
+
+    // Cleanup before window unload
+    window.addEventListener('beforeunload', async () => {
+      // best-effort cleanup
+      try { await remove(ref(db, `queue/${me}`)); } catch(e){}
+      try { if (roomRef) await remove(ref(db, `rooms/${roomId}/users/${me}`)); } catch(e){}
+    });
+
   </script>
 </body>
 </html>
