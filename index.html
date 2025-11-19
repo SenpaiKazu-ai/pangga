@@ -222,21 +222,6 @@
     #chat > #inputArea {
       /* ...existing code... (keeps original layout) ... */
     }
-
-    /* footer attribution */
-    #appFooter {
-      text-align: center;
-      font-size: 0.85rem;
-      color: rgba(51,51,51,0.7);
-      padding: 12px 16px;
-      background: linear-gradient(180deg, rgba(255,255,255,0.02), transparent);
-    }
-    #appFooter a {
-      color: #ff6bc0;
-      text-decoration: none;
-      font-weight: 600;
-    }
-    #appFooter a:hover { text-decoration: underline; }
   </style>
 </head>
 <body>
@@ -253,23 +238,18 @@
 
     <!-- Home -->
     <div id="home" class="screen active">
-      <select id="level" class="cute-select" required>
-      <option value="">Your Level</option>
-      <option>High School</option>
-      <option>College</option>
-      <option>Other</option>
-      </select>
-      <input list="schools" id="school" class="cute-select" placeholder="Your school" required>
+      <select id="level" required><option value="">Your Level</option><option>High School</option><option>College</option><option>Other</option></select>
+      <input list="schools" id="school" placeholder="Your school" required>
       <datalist id="schools">
-      <option>Visayas State University</option>
-      <option>Eastern Visayas State University</option>
-      <option>Leyte Normal University</option>
-      <option>UP Tacloban</option>
-      <option>Leyte National High School</option>
-      <option>St. Scholastica's Tacloban</option>
-      <option>Others...</option>
+        <option>Visayas State University</option>
+        <option>Eastern Visayas State University</option>
+        <option>Leyte Normal University</option>
+        <option>UP Tacloban</option>
+        <option>Leyte National High School</option>
+        <option>St. Scholastica's Tacloban</option>
+        <option>Others...</option>
       </datalist>
-      <div class="small-row"></div>
+      <div class="small-row">
         <input id="age" type="number" min="13" placeholder="Age" required>
         <!-- gender select with emoji choices -->
         <select id="gender" class="cute-select">
@@ -462,12 +442,6 @@
         <!-- added: "I can't chat" button to notify partner and leave -->
         <button id="cantChatBtn" style="background:#ff6b6b; color:white; flex:1;">I can't chat</button>
       </div>
-    </div>
-
-    <!-- attribution footer -->
-    <div id="appFooter">
-      Created by Jhunmark Premacio — if any problems, chat on
-      <a href="https://www.facebook.com/marky.premacio" target="_blank" rel="noopener">Facebook</a>
     </div>
   </div>
 
