@@ -1,501 +1,838 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>PanggaMeet ♡</title>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-<style>
-  @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Comfortaa:wght@700&display=swap');
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>PanggaMeet ♡</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Comfortaa:wght@700&display=swap');
+    
+    /* --- original styles preserved --- */
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      font-family: 'Poppins', sans-serif;
+      height: 100vh;
+      background: linear-gradient(135deg, #ffd7f4 0%, #c3ecff 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #333;
+      /* allow page scrolling when content grows */
+      overflow: auto;
+    }
+    #container {
+      width: 92%;
+      max-width: 420px;
+      background: rgba(255, 255, 255, 0.28);
+      backdrop-filter: blur(20px);
+      border-radius: 28px;
+      box-shadow: 0 15px 45px rgba(0,0,0,0.15);
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.4);
+    }
+    header {
+      background: linear-gradient(135deg, #ff9eca, #a8e6ff);
+      padding: 32px 20px;
+      text-align: center;
+      color: white;
+    }
+    h1 {
+      font-family: 'Comfortaa', cursive;
+      font-size: 2.8em;
+      margin: 0;
+      text-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    }
 
-  * { margin:0; padding:0; box-sizing:border-box; }
-  body {
-    font-family: 'Poppins', sans-serif;
-    height: 100vh;
-    background: linear-gradient(135deg, #ffd7f4 0%, #c3ecff 100%);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #333;
-    overflow: auto;
-  }
-  #container {
-    width: 92%;
-    max-width: 420px;
-    background: rgba(255, 255, 255, 0.28);
-    backdrop-filter: blur(20px);
-    border-radius: 28px;
-    box-shadow: 0 15px 45px rgba(0,0,0,0.15);
-    overflow: hidden;
-    border: 1px solid rgba(255,255,255,0.4);
-  }
-  header {
-    background: linear-gradient(135deg, #ff9eca, #a8e6ff);
-    padding: 32px 20px;
-    text-align: center;
-    color: white;
-  }
-  h1 {
-    font-family: 'Comfortaa', cursive;
-    font-size: 2.8em;
-    margin: 0;
-    text-shadow: 0 4px 10px rgba(0,0,0,0.2);
-  }
+    .screen { padding: 28px; display: none; }
+    .screen.active { display: block; animation: fadeIn 0.6s; }
 
-  .screen { padding: 28px; display: none; }
-  .screen.active { display: block; animation: fadeIn 0.6s; }
+    input, select, textarea {
+      width: 100%;
+      padding: 16px 18px;
+      margin: 12px 0;
+      border: none;
+      border-radius: 20px;
+      background: rgba(255,255,255,0.7);
+      font-size: 1em;
+    }
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      background: rgba(255,255,255,0.95);
+      transform: scale(1.02);
+    }
+    textarea { height: 80px; resize: none; }
 
-  input, select, textarea {
-    width: 100%;
-    padding: 16px 18px;
-    margin: 12px 0;
-    border: none;
-    border-radius: 20px;
-    background: rgba(255,255,255,0.7);
-    font-size: 1em;
-  }
-  input:focus, select:focus, textarea:focus {
-    outline: none;
-    background: rgba(255,255,255,0.95);
-    transform: scale(1.02);
-  }
-  textarea { height: 80px; resize: none; }
+    button {
+      background: linear-gradient(135deg, #ff9eca, #a8e6ff);
+      color: white;
+      border: none;
+      padding: 16px 32px;
+      border-radius: 50px;
+      font-size: 1.1em;
+      font-weight: 600;
+      cursor: pointer;
+      width: 100%;
+      margin-top: 20px;
+      box-shadow: 0 10px 30px rgba(255, 138, 215, 0.4);
+    }
+    button:hover { transform: translateY(-4px); }
 
-  button {
-    background: linear-gradient(135deg, #ff9eca, #a8e6ff);
-    color: white;
-    border: none;
-    padding: 16px 32px;
-    border-radius: 50px;
-    font-size: 1.1em;
-    font-weight: 600;
-    cursor: pointer;
-    width: 100%;
-    margin-top: 20px;
-    box-shadow: 0 10px 30px rgba(255, 138, 215, 0.4);
-  }
-  button:hover { transform: translateY(-4px); }
+    .small-row { display: flex; gap: 12px; }
+    .small-row input { flex: 1; }
 
-  .small-row { display: flex; gap: 12px; }
-  .small-row input, .small-row select { flex: 1; }
+    /* NEW LOADING SCREEN */
+    #loadingScreen {
+      text-align: center;
+      padding: 60px 20px;
+    }
+    .spinner {
+      font-size: 3.8em;
+      margin-bottom: 18px;
+      color: #ff6bc0;
+      display: inline-block;
+      /* heartbeat effect */
+      animation: beat 1s ease-in-out infinite;
+    }
+    @keyframes beat { 0%,100% { transform: scale(1); } 50% { transform: scale(1.12); } }
+    #loadingText {
+      font-size: 1.4em;
+      font-weight: 600;
+      color: #ff6bc0;
+    }
+    .dots {
+      display: inline-block;
+    }
+    .dots::after {
+      content: '...';
+      animation: dots 1.5s infinite;
+    }
 
-  #loadingScreen { text-align: center; padding: 60px 20px; }
-  .spinner { font-size: 3.8em; margin-bottom: 18px; color: #ff6bc0; display: inline-block; animation: beat 1s ease-in-out infinite; }
-  @keyframes beat { 0%,100% { transform: scale(1); } 50% { transform: scale(1.12); } }
-  #loadingText { font-size: 1.4em; font-weight: 600; color: #ff6bc0; }
-  .dots::after { content: '...'; animation: dots 1.5s infinite; }
-  @keyframes dots { 0%,20% { content: '.'; } 40% { content: '..'; } 60%,100% { content: '...'; } }
+    .profiles { display: flex; gap: 16px; margin: 20px 0; }
+    .profile-card {
+      flex: 1;
+      background: rgba(255,255,255,0.6);
+      border-radius: 20px;
+      padding: 16px;
+      text-align: center;
+    }
+    .profile h4 { color: #ff6bc0; margin-bottom: 10px; }
 
-  .profiles { display: flex; gap: 16px; margin: 20px 0; }
-  .profile-card {
-    flex: 1;
-    background: rgba(255,255,255,0.6);
-    border-radius: 20px;
-    padding: 16px;
-    text-align: center;
-  }
-  .profile h4 { color: #ff6bc0; margin-bottom: 10px; }
+    #messages {
+      height: 360px;
+      overflow-y: auto;
+      padding: 20px;
+      background: rgba(255,255,255,0.4);
+      border-radius: 20px;
+      margin: 15px 0;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .msg {
+      max-width: 80%;
+      padding: 12px 18px;
+      border-radius: 20px;
+      line-height: 1.5;
+      animation: msgPop 0.4s;
+    }
+    .you { align-self: flex-end; background: linear-gradient(135deg, #ff9eca, #ffa8e1); color: white; }
+    .stranger { align-self: flex-start; background: rgba(255,255,255,0.9); }
 
-  #messages {
-    height: 360px;
-    overflow-y: auto;
-    padding: 20px;
-    background: rgba(255,255,255,0.4);
-    border-radius: 20px;
-    margin: 15px 0;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-  }
-  .msg {
-    max-width: 80%;
-    padding: 12px 18px;
-    border-radius: 20px;
-    line-height: 1.5;
-    animation: msgPop 0.4s;
-  }
-  .you { align-self: flex-end; background: linear-gradient(135deg, #ff9eca, #ffa8e1); color: white; }
-  .stranger { align-self: flex-start; background: rgba(255,255,255,0.9); }
+    #inputArea { display: flex; gap: 12px; margin-top: 10px; }
+    #msgInput { flex: 1; background: rgba(255,255,255,0.8); border-radius: 30px; padding: 16px 20px; }
+    #sendBtn { padding: 16px 24px; border-radius: 50%; font-size: 1.3em; }
 
-  #inputArea { display: flex; gap: 12px; margin-top: 10px; }
-  #msgInput { flex: 1; background: rgba(255,255,255,0.8); border-radius: 30px; padding: 16px 20px; }
-  #sendBtn { padding: 16px 24px; border-radius: 50%; font-size: 1.3em; }
+    /* Cute select styling for gender / school preferences */
+    .cute-select {
+      appearance: none;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      background: linear-gradient(135deg, rgba(255,255,255,0.85), rgba(255,255,255,0.7));
+      border-radius: 20px;
+      padding: 14px 18px;
+      font-size: 1em;
+      border: none;
+      box-shadow: 0 6px 18px rgba(255, 138, 215, 0.12), inset 0 -6px 12px rgba(0,0,0,0.02);
+      background-image: linear-gradient(135deg, rgba(255,155,200,0.08), rgba(168,230,255,0.06));
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      background-size: 22px;
+      cursor: pointer;
+    }
+    /* small-row compatible */
+    .small-row .cute-select { flex: 1; }
 
-  select.cute-select {
-    appearance: none; -webkit-appearance: none; -moz-appearance: none;
-    background: linear-gradient(135deg, rgba(255,255,255,0.85), rgba(255,255,255,0.7));
-    border-radius: 20px; padding: 14px 18px; font-size: 1em; border: none;
-    box-shadow: 0 6px 18px rgba(255, 138, 215, 0.12), inset 0 -6px 12px rgba(0,0,0,0.02);
-    background-image: linear-gradient(135deg, rgba(255,155,200,0.08), rgba(168,230,255,0.06));
-    background-repeat: no-repeat;
-    background-position: right 12px center;
-    background-size: 22px;
-    cursor: pointer;
-  }
-  select.cute-select option { padding: 8px; background: white; color: #333; }
+    /* tweak option text for friendliness (emojis included inside option text) */
+    select.cute-select option {
+      padding: 8px;
+      background: white;
+      color: #333;
+    }
 
-  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-  @keyframes msgPop { from { opacity: 0; transform: scale(0.8); } to { opacity: 1; transform: scale(1); } }
-</style>
+    /* add a subtle arrow using a radial-gradient as fallback for older UA */
+    select.cute-select::-ms-expand { display: none; }
+    select.cute-select {
+      background-image:
+        linear-gradient(135deg, rgba(255,155,200,0.06), rgba(168,230,255,0.06)),
+        radial-gradient(circle at right 16px center, #ff6bc0 8%, transparent 10%);
+      background-position: center right, center right;
+      background-repeat: no-repeat;
+      background-size: calc(1em + 8px) calc(1em + 8px), 18px 18px;
+    }
+
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    @keyframes dots { 0%, 20% { content: '.'; } 40% { content: '..'; } 60%, 100% { content: '...'; } }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes msgPop { from { opacity: 0; transform: scale(0.8); } to { opacity: 1; transform: scale(1); } }
+  </style>
 </head>
 <body>
-<div id="container">
-<header>
-  <h1>PanggaMeet</h1>
-  <p>Chat with students around Leyte ♡</p>
-  <div id="queueInfo" style="font-size:0.9em;color:white;margin-top:6px;">
-    <span id="searchCount">0</span> users searching...
-  </div>
-</header>
 
-<div id="home" class="screen active">
-  <select id="level" required>
-    <option value="">Your Level</option>
-    <option>High School</option>
-    <option>College</option>
-    <option>Other</option>
-  </select>
-  <input list="schools" id="school" placeholder="Your school" required>
-  <datalist id="schools"></datalist>
+  <div id="container">
+    <header>
+      <h1>PanggaMeet</h1>
+      <p>Chat with students around Leyte ♡</p>
+      <!-- quick queue indicator so other users can see search activity -->
+      <div id="queueInfo" style="font-size:0.9em;color:white;margin-top:6px;">
+        <span id="searchCount">0</span> users searching...
+      </div>
+    </header>
 
-  <div class="small-row">
-    <input id="age" type="number" min="13" placeholder="Age" required>
-    <select id="gender" class="cute-select">
-      <option value="">Gender (optional)</option>
-      <option value="Female">♀ Female</option>
-      <option value="Male">♂ Male</option>
-      <option value="Non-binary">⚧ Non-binary</option>
-      <option value="Other">🌈 Other</option>
-      <option value="Prefer not to say">🙈 Prefer not to say</option>
-    </select>
-  </div>
-  <textarea id="hobbies" placeholder="Hobbies (optional)"></textarea>
+    <!-- Home -->
+    <div id="home" class="screen active">
+      <select id="level" required><option value="">Your Level</option><option>High School</option><option>College</option><option>Other</option></select>
+      <input list="schools" id="school" placeholder="Your school" required>
+      <datalist id="schools">
+        <option>Visayas State University</option>
+        <option>Eastern Visayas State University</option>
+        <option>Leyte Normal University</option>
+        <option>UP Tacloban</option>
+        <option>Leyte National High School</option>
+        <option>St. Scholastica's Tacloban</option>
+        <option>Others...</option>
+      </datalist>
+      <div class="small-row">
+        <input id="age" type="number" min="13" placeholder="Age" required>
+        <!-- gender select with emoji choices -->
+        <select id="gender" class="cute-select">
+          <option value="">Gender (optional)</option>
+          <option value="Female">♀ Female</option>
+          <option value="Male">♂ Male</option>
+          <option value="Non-binary">⚧ Non-binary</option>
+          <option value="Other">🌈 Other</option>
+          <option value="Prefer not to say">🙈 Prefer not to say</option>
+        </select>
+      </div>
+      <textarea id="hobbies" placeholder="Hobbies (optional)"></textarea>
 
-  <div style="margin-top:6px;">
-    <label style="font-size:0.9em; color:#555;">Match filters (optional)</label>
-    <div class="small-row">
-      <select id="prefLevel" class="cute-select"><option value="">Any level</option><option>High School</option><option>College</option><option>Other</option></select>
-      <select id="prefSchool" class="cute-select">
-        <option value="">Any school</option>
-        <option>📚 Visayas State University</option>
-        <option>📚 Eastern Visayas State University</option>
-        <option>📚 Leyte Normal University</option>
-        <option>📚 UP Tacloban</option>
-        <option>🏫 Leyte National High School</option>
-        <option>🏫 St. Scholastica's Tacloban</option>
-        <option>🌟 Others...</option>
-      </select>
+      <!-- preferences -->
+      <div style="margin-top:6px;">
+        <label style="font-size:0.9em; color:#555;">Match filters (optional)</label>
+        <div class="small-row">
+          <select id="prefLevel" class="cute-select"><option value="">Any level</option><option>High School</option>
+            <option>College</option><option>Other</option></select>
+          <!-- prefSchool as select so choices are consistent and cute -->
+          <select id="prefSchool" class="cute-select">
+            <option value="">Any school</option>
+            <option>📚 Visayas State University</option>
+            <option>📚 Eastern Visayas State University</option>
+            <option>📚 Leyte Normal University</option>
+            <option>📚 UP Tacloban</option>
+            <option>🏫 Leyte National High School</option>
+            <option>🏫 St. Scholastica's Tacloban</option>
+            <option>🌟 Others...</option>
+          </select>
+        </div>
+        <div class="small-row" style="margin-top:8px;">
+          <!-- prefGender select with Any option -->
+          <select id="prefGender" class="cute-select">
+            <option value="">Any gender</option>
+            <option value="Female">♀ Female</option>
+            <option value="Male">♂ Male</option>
+            <option value="Non-binary">⚧ Non-binary</option>
+            <option value="Other">🌈 Other</option>
+            <option value="Prefer not to say">🙈 Prefer not to say</option>
+          </select>
+          <input id="prefMaxAge" type="number" min="13" placeholder="Max age (optional)">
+        </div>
+      </div>
+
+      <button id="startBtn">♡ Start Chatting ♡</button>
     </div>
-    <div class="small-row" style="margin-top:8px;">
-      <select id="prefGender" class="cute-select">
-        <option value="">Any gender</option>
-        <option value="Female">♀ Female</option>
-        <option value="Male">♂ Male</option>
-        <option value="Non-binary">⚧ Non-binary</option>
-        <option value="Other">🌈 Other</option>
-        <option value="Prefer not to say">🙈 Prefer not to say</option>
-      </select>
-      <input id="prefMaxAge" type="number" min="13" placeholder="Max age (optional)">
+
+    <!-- NEW LOADING SCREEN -->
+    <div id="loadingScreen" class="screen">
+      <div class="spinner"><i class="fa-solid fa-heart"></i></div>
+      <div id="loadingText">Finding you a langga<span class="dots"></span></div>
+      <div style="margin-top:12px;"><button id="cancelQueue" style="background:#fff;color:#333;padding:10px;border-radius:12px;box-shadow:none;border:1px solid #eee;">Cancel</button></div>
+    </div>
+
+    <!-- Chat -->
+    <div id="chat" class="screen">
+      <div id="status" style="text-align:center;font-size:1.3em;margin:20px;color:#ff6bc0;font-weight:600;"></div>
+
+      <div class="profiles">
+        <div class="profile-card">
+          <h4>You</h4>
+          <p><b>School:</b> <span id="mySchool">-</span></p>
+          <p><b>Level:</b> <span id="myLevel">-</span></p>
+          <p><b>Age:</b> <span id="myAge">-</span></p>
+          <!-- added: show user's hobbies -->
+          <p><b>Hobbies:</b> <span id="myHobbies">-</span></p>
+        </div>
+        <div class="profile-card">
+          <h4>Stranger</h4>
+          <p><b>School:</b> <span id="strSchool">-</span></p>
+          <p><b>Level:</b> <span id="strLevel">-</span></p>
+          <p><b>Age:</b> <span id="strAge">-</span></p>
+          <!-- added: show partner's hobbies -->
+          <p><b>Hobbies:</b> <span id="strHobbies">-</span></p>
+        </div>
+      </div>
+
+      <div id="messages"></div>
+
+      <div id="inputArea">
+        <input type="text" id="msgInput" placeholder="Say something sweet...">
+        <button id="sendBtn">Send</button>
+      </div>
+      <div style="display:flex; gap:12px; margin-top:15px;">
+        <button id="nextBtn" style="background:#ccc; flex:1;">Next Pangga →</button>
+        <button id="skipBtn" style="background:#ffa06b; flex:1;">Skip</button>
+        <!-- added: "I can't chat" button to notify partner and leave -->
+        <button id="cantChatBtn" style="background:#ff6b6b; color:white; flex:1;">I can't chat</button>
+      </div>
     </div>
   </div>
 
-  <button id="startBtn">♡ Start Chatting ♡</button>
-</div>
+  <script type="module">
+    // --- Firebase SDK imports ---
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js";
+    import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-auth.js";
+    import { getDatabase, ref, set, get, remove, push, onChildAdded, onDisconnect, onValue, runTransaction, serverTimestamp, update, off } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-database.js";
 
-<div id="loadingScreen" class="screen">
-  <div class="spinner"><i class="fa-solid fa-heart"></i></div>
-  <div id="loadingText">Finding you a langga<span class="dots"></span></div>
-  <div style="margin-top:12px;">
-    <button id="cancelQueue" style="background:#fff;color:#333;padding:10px;border-radius:12px;box-shadow:none;border:1px solid #eee;">Cancel</button>
-  </div>
-</div>
+    // --- firebase config (keep yours) ---
+    const firebaseConfig = {
+    apiKey: "AIzaSyC7vg_MGjiVvbbvnBAPRLDXnzK4OWflrCw",
+    authDomain: "panggameet-chat.firebaseapp.com",
+    databaseURL: "https://panggameet-chat-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "panggameet-chat",
+    storageBucket: "panggameet-chat.firebasestorage.app",
+    messagingSenderId: "1027749522600",
+    appId: "1:1027749522600:web:b34eed31a14e4eec10a69d"
+  };
 
-<div id="chat" class="screen">
-  <div id="status" style="text-align:center;font-size:1.3em;margin:20px;color:#ff6bc0;font-weight:600;"></div>
-  <div class="profiles">
-    <div class="profile-card">
-      <h4>You</h4>
-      <p><b>School:</b> <span id="mySchool">-</span></p>
-      <p><b>Level:</b> <span id="myLevel">-</span></p>
-      <p><b>Age:</b> <span id="myAge">-</span></p>
-    </div>
-    <div class="profile-card">
-      <h4>Stranger</h4>
-      <p><b>School:</b> <span id="strSchool">-</span></p>
-      <p><b>Level:</b> <span id="strLevel">-</span></p>
-      <p><b>Age:</b> <span id="strAge">-</span></p>
-    </div>
-  </div>
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getDatabase(app);
 
-  <div id="messages"></div>
-  <div id="inputArea">
-    <input type="text" id="msgInput" placeholder="Say something sweet...">
-    <button id="sendBtn">Send</button>
-  </div>
-  <div style="display:flex; gap:12px; margin-top:15px;">
-    <button id="nextBtn" style="background:#ccc; flex:1;">Next Pangga →</button>
-    <button id="skipBtn" style="background:#ffa06b; flex:1;">Skip</button>
-  </div>
-</div>
+    // --- state ---
+    let me = null;
+    let partner = null;
+    let roomId = null;
+    let myQueueRef = null;
+    let roomMessagesCallback = null;
+    let queueChildListenerAttached = false;
+    let queueListenerCallback = null; // <-- added: keep reference to detach later
+    let isQueued = false;
 
-</div>
+    // --- UI refs ---
+    const startBtn = document.getElementById('startBtn');
+    const cancelBtn = document.getElementById('cancelQueue');
+    const loadingScreen = document.getElementById('loadingScreen');
+    const homeScreen = document.getElementById('home');
+    const chatScreen = document.getElementById('chat');
+    const messagesEl = document.getElementById('messages');
+    const sendBtn = document.getElementById('sendBtn');
+    const msgInput = document.getElementById('msgInput');
+    const skipBtn = document.getElementById('skipBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const cantChatBtn = document.getElementById('cantChatBtn');
+    const searchCountEl = document.getElementById('searchCount');
+    const levelSelect = document.getElementById('level');
+    const schoolInput = document.getElementById('school');
+    const schoolsDatalist = document.getElementById('schools');
 
-<script type="module">
-// --- Firebase SDK imports ---
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js";
-import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-auth.js";
-import { getDatabase, ref, set, get, remove, push, onChildAdded, onDisconnect, onValue, runTransaction, serverTimestamp, update, off } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-database.js";
+    // disable send until connected
+    sendBtn.disabled = true;
+    msgInput.disabled = true;
+    // disable can't-chat until connected
+    cantChatBtn.disabled = true;
 
-const firebaseConfig = {
-  apiKey: "AIzaSyC7vg_MGjiVvbbvnBAPRLDXnzK4OWflrCw",
-  authDomain: "panggameet-chat.firebaseapp.com",
-  databaseURL: "https://panggameet-chat-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "panggameet-chat",
-  storageBucket: "panggameet-chat.firebasestorage.app",
-  messagingSenderId: "1027749522600",
-  appId: "1:1027749522600:web:b34eed31a14e4eec10a69d"
-};
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getDatabase(app);
+    // Add global error handlers to catch runtime problems during debugging
+    window.addEventListener('error', (e) => {
+      console.error('Window error:', e.error || e.message, e);
+      // minimal visible feedback for debugging
+      alert('Runtime error: ' + (e.error?.message || e.message || 'see console'));
+    });
+    window.addEventListener('unhandledrejection', (e) => {
+      console.error('Unhandled rejection:', e.reason);
+      alert('Unhandled rejection: see console');
+    });
 
-let me = null;
-let partner = null;
-let roomId = null;
-let myQueueRef = null;
-let roomMessagesCallback = null;
-let queueChildListenerAttached = false;
-let queueListenerCallback = null;
+    // disable until auth ready
+    startBtn.disabled = true;
 
-const startBtn = document.getElementById('startBtn');
-const cancelBtn = document.getElementById('cancelQueue');
-const loadingScreen = document.getElementById('loadingScreen');
-const homeScreen = document.getElementById('home');
-const chatScreen = document.getElementById('chat');
-const messagesEl = document.getElementById('messages');
-const sendBtn = document.getElementById('sendBtn');
-const msgInput = document.getElementById('msgInput');
-const skipBtn = document.getElementById('skipBtn');
-const nextBtn = document.getElementById('nextBtn');
-const searchCountEl = document.getElementById('searchCount');
-const levelSelect = document.getElementById('level');
-const schoolInput = document.getElementById('school');
-const schoolsDatalist = document.getElementById('schools');
-
-sendBtn.disabled = true;
-msgInput.disabled = true;
-skipBtn.disabled = true;
-startBtn.disabled = true;
-
-onAuthStateChanged(auth, async (user) => {
-  if (user) {
-    me = user.uid;
-    startBtn.disabled = false;
-  } else {
-    try {
-      const cred = await signInAnonymously(auth);
-      me = cred.user.uid;
-      startBtn.disabled = false;
-    } catch (err) {
-      alert('Auth failed. See console.');
-      console.error(err);
-    }
-  }
-});
-
-// --- Schools dynamic ---
-const schoolsByLevel = {
-  'High School':['Leyte National High School',"St. Scholastica's Tacloban",'Tacloban City High School','Other High School...'],
-  'College':['Visayas State University','Eastern Visayas State University','Leyte Normal University','UP Tacloban','Other College...'],
-  'Other':['Others...']
-};
-function updateSchoolsForLevel(level){
-  let list = schoolsByLevel[level] || [].concat(...Object.values(schoolsByLevel));
-  schoolsDatalist.innerHTML = list.map(s=>`<option value="${s}">`).join('');
-  schoolInput.placeholder = level==='High School'?'Select your high school':level==='College'?'Select your college':'Your school';
-}
-updateSchoolsForLevel(levelSelect.value);
-levelSelect.addEventListener('change', e=>updateSchoolsForLevel(e.target.value));
-
-// --- Queue count ---
-onValue(ref(db,'queue'), snap=>{
-  searchCountEl.textContent = snap.val()?Object.keys(snap.val()).length:'0';
-});
-
-// --- Preference compatibility ---
-function matchCompatible(profile={}, preferences={}) {
-  if (!preferences) return true;
-  if (preferences.prefLevel && preferences.prefLevel!=='' && profile.level!==preferences.prefLevel) return false;
-  if (preferences.prefSchool && preferences.prefSchool!=='' && profile.school?.toLowerCase()!==preferences.prefSchool.toLowerCase()) return false;
-  if (preferences.prefGender && preferences.prefGender!=='' && profile.gender?.toLowerCase()!==preferences.prefGender.toLowerCase()) return false;
-  if (preferences.prefMaxAge && preferences.prefMaxAge!=='' && profile.age>Number(preferences.prefMaxAge)) return false;
-  return true;
-}
-
-// --- Claim candidate ---
-async function tryClaimCandidate(preferences){
-  const attemptPass = async (prefs)=>{
-    try{
-      const qSnap = await get(ref(db,'queue'));
-      if (!qSnap.exists()) return {success:false};
-      const q = qSnap.val();
-      const candidateUids = Object.keys(q).filter(k=>k!==me);
-      candidateUids.sort((a,b)=>(q[a].ts||0)-(q[b].ts||0));
-      for(const uid of candidateUids){
-        const candidateRef = ref(db,`queue/${uid}`);
-        const res = await runTransaction(candidateRef, current=>{
-          if(!current || current.claimed) return;
-          return {...current, claimed:true, claimedBy:me, claimedAt:Date.now()};
-        },{applyLocally:false});
-        if(res.committed){
-          const profSnap = await get(ref(db,`profiles/${uid}`));
-          const prof = profSnap.exists()?profSnap.val():{};
-          if(!matchCompatible(prof,prefs)){
-            await update(ref(db,`queue/${uid}`),{claimed:false,claimedBy:null}).catch(()=>{});
-            continue;
-          }
-          return {success:true,uid};
+    onAuthStateChanged(auth, async (user) => {
+      console.log('onAuthStateChanged', user);
+      if (user) {
+        me = user.uid;
+        startBtn.disabled = false;
+        console.log('Signed in as', me);
+      } else {
+        try {
+          const cred = await signInAnonymously(auth);
+          me = cred.user.uid;
+          startBtn.disabled = false;
+          console.log('Anonymous sign-in complete', me);
+        } catch (err) {
+          console.error('Auth failed:', err);
+          alert('Authentication failed. Check console.');
         }
       }
-    }catch(e){console.warn(e);}
-    return {success:false};
-  };
-  return await attemptPass(preferences);
-}
+    });
 
-// --- Enqueue self ---
-async function enqueueSelf(profile={}){
-  myQueueRef = ref(db,`queue/${me}`);
-  await set(myQueueRef,{...profile, ts:Date.now()});
-  onDisconnect(myQueueRef).remove();
-}
-
-// --- Messages ---
-function attachMessagesListener(rid){
-  detachMessagesListener();
-  roomMessagesCallback = onChildAdded(ref(db,`rooms/${rid}/messages`), snap=>{
-    const m = snap.val();
-    if(!m) return;
-    const div = document.createElement('div');
-    div.className = `msg ${m.uid===me?'you':m.uid==='__system__'?'system':'stranger'}`;
-    div.textContent = m.text;
-    messagesEl.appendChild(div);
-    messagesEl.scrollTop = messagesEl.scrollHeight;
-  });
-}
-function detachMessagesListener(){
-  if(roomMessagesCallback && roomId) {
-    off(ref(db,`rooms/${roomId}/messages`),'child_added',roomMessagesCallback);
-    roomMessagesCallback=null;
-  }
-}
-
-// --- Create Room ---
-async function createRoomWith(uid){
-  if(!me || partner || uid===me) return;
-  partner = uid;
-  roomId = me<uid?`${me}_${uid}`:`${uid}_${me}`;
-  try{
-    await remove(ref(db,`queue/${me}`)).catch(()=>{});
-    await remove(ref(db,`queue/${uid}`)).catch(()=>{});
-    sendBtn.disabled=false; msgInput.disabled=false; skipBtn.disabled=false;
-    const pSnap = await get(ref(db,`profiles/${uid}`));
-    if(pSnap.exists()){
-      const d = pSnap.val();
-      document.getElementById('strLevel').textContent=d.level||'-';
-      document.getElementById('strSchool').textContent=d.school||'-';
-      document.getElementById('strAge').textContent=d.age||'-';
-    }
-    loadingScreen.classList.remove('active');
-    homeScreen.classList.remove('active');
-    chatScreen.classList.add('active');
-    document.getElementById('status').textContent='Connected na! 💕';
-    attachMessagesListener(roomId);
-  }catch(err){console.warn(err); partner=null; roomId=null;}
-}
-
-// --- Leave Room ---
-async function leaveRoom(){
-  detachMessagesListener();
-  if(roomId && me) await remove(ref(db,`rooms/${roomId}/users/${me}`)).catch(()=>{});
-  partner=null; roomId=null; messagesEl.innerHTML='';
-  document.getElementById('strLevel').textContent='-';
-  document.getElementById('strSchool').textContent='-';
-  document.getElementById('strAge').textContent='-';
-  document.getElementById('status').textContent='';
-  chatScreen.classList.remove('active');
-  sendBtn.disabled=true; msgInput.disabled=true; skipBtn.disabled=true;
-}
-
-// --- Start Button ---
-startBtn.onclick = async ()=>{
-  const profile={
-    level: levelSelect.value || '',
-    school: schoolInput.value.trim() || '',
-    age: Number(document.getElementById('age').value) || null,
-    gender: document.getElementById('gender').value || '',
-    hobbies: document.getElementById('hobbies').value.trim() || ''
-  };
-  document.getElementById('myLevel').textContent = profile.level||'-';
-  document.getElementById('mySchool').textContent = profile.school||'-';
-  document.getElementById('myAge').textContent = profile.age||'-';
-  await set(ref(db,`profiles/${me}`),profile);
-  await enqueueSelf(profile);
-  homeScreen.classList.remove('active');
-  loadingScreen.classList.add('active');
-
-  const prefs = {
-    prefLevel: document.getElementById('prefLevel').value || '',
-    prefSchool: document.getElementById('prefSchool').value.trim() || '',
-    prefGender: document.getElementById('prefGender').value.trim() || '',
-    prefMaxAge: document.getElementById('prefMaxAge').value || ''
-  };
-  const claim = await tryClaimCandidate(prefs);
-  if(claim.success){ await createRoomWith(claim.uid); }
-};
-
-// --- Send Message ---
-sendBtn.onclick = async ()=>{
-  const text = msgInput.value.trim();
-  if(!text || !roomId) return;
-  await push(ref(db,`rooms/${roomId}/messages`),{text,uid:me,ts:serverTimestamp()});
-  msgInput.value='';
-};
-msgInput.addEventListener('keypress',e=>{ if(e.key==='Enter') sendBtn.click(); });
-
-// --- Skip / Next ---
-async function skipCurrent(){
-  if(roomId){
-    await push(ref(db,`rooms/${roomId}/messages`),{text:'[User skipped chat]',uid:'__system__',ts:serverTimestamp()}).catch(()=>{});
-  }
-  await leaveRoom();
-  const myProfSnap = await get(ref(db,`profiles/${me}`));
-  if(myProfSnap.exists()){
-    const profile = myProfSnap.val();
-    await enqueueSelf(profile);
-    const prefs = {
-      prefLevel: document.getElementById('prefLevel').value || '',
-      prefSchool: document.getElementById('prefSchool').value.trim() || '',
-      prefGender: document.getElementById('prefGender').value.trim() || '',
-      prefMaxAge: document.getElementById('prefMaxAge').value || ''
+    // --- dynamic school lists ---
+    const schoolsByLevel = {
+      'High School': [
+        'Leyte National High School',
+        "St. Scholastica's Tacloban",
+        'Tacloban City High School',
+        'Other High School...'
+      ],
+      'College': [
+        'Visayas State University',
+        'Eastern Visayas State University',
+        'Leyte Normal University',
+        'UP Tacloban',
+        'Other College...'
+      ],
+      'Other': [
+        'Others...'
+      ]
     };
-    const claim = await tryClaimCandidate(prefs);
-    if(claim.success){ await createRoomWith(claim.uid); }
-    else { loadingScreen.classList.add('active'); document.getElementById('loadingText').textContent='Looking for next pangga...'; }
-  } else { homeScreen.classList.add('active'); }
-}
-skipBtn.onclick = skipCurrent;
-nextBtn.onclick = skipCurrent;
+    
+    function updateSchoolsForLevel(level) {
+      let list = schoolsByLevel[level] || [].concat(...Object.values(schoolsByLevel));
+      // produce options for datalist
+      schoolsDatalist.innerHTML = list.map(s => `<option value="${s}">`).join('');
+      if (level === 'High School') {
+        schoolInput.placeholder = 'Select your high school';
+      } else if (level === 'College') {
+        schoolInput.placeholder = 'Select your college';
+      } else {
+        schoolInput.placeholder = 'Your school';
+      }
+    }
+    // initial populate
+    updateSchoolsForLevel(levelSelect.value);
+    levelSelect.addEventListener('change', (e) => updateSchoolsForLevel(e.target.value));
 
-// --- Cancel Queue ---
-cancelBtn.onclick = async ()=>{
-  if(myQueueRef) await remove(myQueueRef);
-  loadingScreen.classList.remove('active'); homeScreen.classList.add('active');
-};
-</script>
+    // --- show number of users searching (other users can see someone is finding a match) ---
+    onValue(ref(db, 'queue'), (snap) => {
+      const v = snap.val();
+      const count = v ? Object.keys(v).length : 0;
+      searchCountEl.textContent = String(count);
+    });
+
+    // --- utility: preference compatibility check ---
+    function matchCompatible(profile = {}, preferences = {}) {
+      // if preference empty => allow
+      if (!preferences) return true;
+      if (preferences.prefLevel && preferences.prefLevel !== '' && profile.level !== preferences.prefLevel) return false;
+      if (preferences.prefSchool && preferences.prefSchool !== '' && profile.school && profile.school.toLowerCase() !== preferences.prefSchool.toLowerCase()) return false;
+      if (preferences.prefGender && preferences.prefGender !== '' && profile.gender && profile.gender.toLowerCase() !== preferences.prefGender.toLowerCase()) return false;
+      if (preferences.prefMaxAge && preferences.prefMaxAge !== '' && profile.age && Number(profile.age) > Number(preferences.prefMaxAge)) return false;
+      return true;
+    }
+
+    // --- try to atomically claim an existing candidate from queue ---
+    async function tryClaimCandidate(preferences) {
+      // helper: attempt a pass using given prefs
+      const attemptPass = async (prefs) => {
+        try {
+          const qSnap = await get(ref(db, 'queue'));
+          if (!qSnap.exists()) return { success:false };
+          const q = qSnap.val();
+          const candidateUids = Object.keys(q).filter(k => k !== me);
+          candidateUids.sort((a,b) => (q[a].ts||0) - (q[b].ts||0));
+          for (const uid of candidateUids) {
+            const candidateRef = ref(db, `queue/${uid}`);
+            const res = await runTransaction(candidateRef, (current) => {
+              if (!current) return;
+              if (current.claimed) return;
+              return { ...current, claimed: true, claimedBy: me, claimedAt: Date.now() };
+            }, { applyLocally:false });
+
+            if (res.committed) {
+              const profSnap = await get(ref(db, `profiles/${uid}`));
+              const prof = profSnap.exists() ? profSnap.val() : {};
+              if (!matchCompatible(prof, prefs)) {
+                // unclaim (best-effort)
+                await update(ref(db, `queue/${uid}`), { claimed:false, claimedBy:null }).catch(()=>{});
+                continue;
+              }
+              return { success:true, uid };
+            }
+          }
+        } catch (err) {
+          console.warn('attemptPass error', err);
+        }
+        return { success:false };
+      };
+
+      // 1) strict attempt using provided preferences
+      const strict = await attemptPass(preferences || {});
+      if (strict.success) return strict;
+
+      // 2) fallback: if a school preference existed, retry ignoring the school (accept any school)
+      if (preferences && preferences.prefSchool && preferences.prefSchool !== '') {
+        const relaxed = { ...preferences, prefSchool: '' };
+        const relaxedRes = await attemptPass(relaxed);
+        if (relaxedRes.success) return relaxedRes;
+      }
+
+      return { success:false };
+    }
+
+    // --- attach/detach messages listener ---
+    function attachMessagesListener(rid) {
+      if (!rid) return;
+      detachMessagesListener();
+      roomMessagesCallback = (snap) => {
+        const m = snap.val();
+        if (!m) return;
+        const div = document.createElement('div');
+        div.className = `msg ${m.uid === me ? 'you' : 'stranger'}`;
+        div.textContent = m.text;
+        messagesEl.appendChild(div);
+        messagesEl.scrollTop = messagesEl.scrollHeight;
+      };
+      onChildAdded(ref(db, `rooms/${rid}/messages`), roomMessagesCallback);
+    }
+    function detachMessagesListener() {
+      if (!roomMessagesCallback || !roomId) return;
+      try {
+        off(ref(db, `rooms/${roomId}/messages`), 'child_added', roomMessagesCallback);
+      } catch (err) {
+        // fallback: detach all
+        try { off(ref(db, `rooms/${roomId}/messages`)); } catch(e) {}
+      }
+      roomMessagesCallback = null;
+    }
+
+    // --- create or join room safely ---
+    async function createRoomWith(uid) {
+      if (!me || partner || uid === me) return;
+      partner = uid;
+      roomId = me < uid ? `${me}_${uid}` : `${uid}_${me}`;
+      const roomRef = ref(db, `rooms/${roomId}`);
+      try {
+        // remove both from queue
+        await remove(ref(db, `queue/${me}`)).catch(()=>{});
+        await remove(ref(db, `queue/${uid}`)).catch(()=>{});
+        // ensure send UI is active
+        sendBtn.disabled = false;
+        msgInput.disabled = false;
+        skipBtn.disabled = false;
+        cantChatBtn.disabled = false;
+
+        // ensure room has user entries
+        await update(roomRef, { users: { [me]: true, [uid]: true }, createdAt: serverTimestamp() });
+
+        // fetch partner profile
+        const p = await get(ref(db, `profiles/${uid}`));
+        if (p && p.val()) {
+          const d = p.val();
+          document.getElementById('strLevel').textContent = d.level || '-';
+          document.getElementById('strSchool').textContent = d.school || '-';
+          document.getElementById('strAge').textContent = d.age || '-';
+          // show partner hobbies
+          document.getElementById('strHobbies').textContent = d.hobbies || '-';
+        }
+
+        // switch UI
+        loadingScreen.classList.remove('active');
+        homeScreen.classList.remove('active');
+        chatScreen.classList.add('active');
+        document.getElementById('status').textContent = 'Connected na! 💕';
+
+        // attach messages listener
+        attachMessagesListener(roomId);
+      } catch (err) {
+        console.error('createRoomWith error:', err);
+        partner = null;
+        roomId = null;
+        // restore UI disable
+        sendBtn.disabled = true;
+        msgInput.disabled = true;
+        skipBtn.disabled = true;
+        cantChatBtn.disabled = true;
+      }
+    }
+
+    // --- enqueue current user (with onDisconnect cleanup) ---
+    async function enqueueSelf(profile) {
+      if (!me) return;
+      myQueueRef = ref(db, `queue/${me}`);
+      const payload = {
+        uid: me,
+        ts: Date.now(),
+        level: profile.level || null,
+        school: profile.school || null,
+        gender: profile.gender || null,
+        age: profile.age || null,
+        claimed: false
+      };
+      await set(myQueueRef, payload);
+      onDisconnect(myQueueRef).remove();
+      isQueued = true;
+    }
+
+    // --- leave the current room and cleanup ---
+    async function leaveRoom() {
+      // detach message listener
+      detachMessagesListener();
+      // remove our presence inside room users
+      if (roomId && me) {
+        try { await remove(ref(db, `rooms/${roomId}/users/${me}`)); } catch(e){ }
+      }
+      // reset local UI/state
+      partner = null;
+      roomId = null;
+      messagesEl.innerHTML = '';
+      document.getElementById('strLevel').textContent = '-';
+      document.getElementById('strSchool').textContent = '-';
+      document.getElementById('strAge').textContent = '-';
+      document.getElementById('strHobbies').textContent = '-';
+      document.getElementById('status').textContent = '';
+      chatScreen.classList.remove('active');
+      // disable send UI
+      sendBtn.disabled = true;
+      msgInput.disabled = true;
+      skipBtn.disabled = true;
+      // disable can't-chat when not in a room
+      cantChatBtn.disabled = true;
+    }
+
+    // --- send message ---
+    async function sendMessage(text) {
+      if (!roomId || !text) return;
+      try {
+        await push(ref(db, `rooms/${roomId}/messages`), { text, uid: me, ts: serverTimestamp() });
+      } catch (err) {
+        console.error('Send message error:', err);
+      }
+    }
+
+    // --- START BUTTON handler (wrapped + logging + detachable queue listener) ---
+    startBtn.onclick = async () => {
+      try {
+        if (!me) return alert('Please wait a moment for authentication...');
+        console.log('Start clicked, me=', me);
+
+        // gather profile & preferences
+        const level = document.getElementById('level').value;
+        const school = document.getElementById('school').value.trim();
+        const age = document.getElementById('age').value;
+        const gender = document.getElementById('gender').value.trim();
+        const hobbies = document.getElementById('hobbies').value.trim();
+
+        if (!level || !school || !age) return alert('Fill up everything!');
+
+        const profile = { level, school, age: Number(age), gender: gender || null, hobbies: hobbies || null, updatedAt: serverTimestamp() };
+        console.log('Saving profile', profile);
+        await set(ref(db, `profiles/${me}`), profile);
+
+        // update my UI card
+        document.getElementById('myLevel').textContent = level;
+        document.getElementById('mySchool').textContent = school;
+        document.getElementById('myAge').textContent = age;
+        // show hobbies in my profile card
+        document.getElementById('myHobbies').textContent = hobbies || '-';
+
+        // preferences
+        const preferences = {
+          prefLevel: document.getElementById('prefLevel').value || '',
+          prefSchool: document.getElementById('prefSchool').value.trim() || '',
+          prefGender: document.getElementById('prefGender').value.trim() || '',
+          prefMaxAge: document.getElementById('prefMaxAge').value || ''
+        };
+
+        // UI: show loading
+        homeScreen.classList.remove('active');
+        loadingScreen.classList.add('active');
+        document.getElementById('loadingText').textContent = 'Finding you a langga';
+
+        // enqueue self
+        await enqueueSelf(profile);
+        console.log('Enqueued', me);
+
+        // try immediate claim
+        const claim = await tryClaimCandidate(preferences);
+        if (claim.success) {
+          console.log('Immediate claim success', claim.uid);
+          await createRoomWith(claim.uid);
+          return;
+        }
+
+        // fallback: listen for new queue entrants and attempt to claim them
+        if (!queueChildListenerAttached) {
+          queueChildListenerAttached = true;
+          queueListenerCallback = async (snap) => {
+            try {
+              const uid = snap.key;
+              if (!uid) return;
+              if (uid === me || partner) return;
+              console.log('Queue child added', uid);
+              // Reuse tryClaimCandidate which does strict -> fallback (ignores school) attempts.
+              const claim = await tryClaimCandidate(preferences);
+              if (claim.success) {
+                await createRoomWith(claim.uid);
+              }
+            } catch (err) {
+              console.error('onChildAdded pairing error:', err);
+            }
+          };
+          onChildAdded(ref(db, 'queue'), queueListenerCallback);
+        }
+      } catch (err) {
+        console.error('startBtn handler error:', err);
+        alert('Error during start flow. See console.');
+      }
+    };
+
+    // cancel queue if user changes mind while waiting
+    cancelBtn.onclick = async () => {
+      try {
+        if (!me) return;
+        await remove(ref(db, `queue/${me}`)).catch(()=>{});
+        isQueued = false;
+        loadingScreen.classList.remove('active');
+        homeScreen.classList.add('active');
+
+        // detach queue listener if attached
+        if (queueChildListenerAttached && queueListenerCallback) {
+          try {
+            off(ref(db, 'queue'), 'child_added', queueListenerCallback);
+          } catch (e) {
+            try { off(ref(db, 'queue')); } catch(e) {}
+          }
+          queueChildListenerAttached = false;
+          queueListenerCallback = null;
+        }
+        // update visible queue count handled by onValue listener
+      } catch (err) {
+        console.error('cancel queue error', err);
+      }
+    };
+
+    // send message UI
+    sendBtn.onclick = async () => {
+      const text = msgInput.value.trim();
+      if (!text) return;
+      await sendMessage(text);
+      msgInput.value = '';
+    };
+    msgInput.addEventListener('keypress', e => { if (e.key === 'Enter') sendBtn.click(); });
+
+    // "I can't chat" button handler: notify partner with a system message, then leave
+    cantChatBtn.onclick = async () => {
+      try {
+        if (roomId) {
+          await push(ref(db, `rooms/${roomId}/messages`), { text: "[User can't chat right now]", uid: '__system__', ts: serverTimestamp() }).catch(()=>{});
+        }
+        await leaveRoom();
+        // show home so user can decide next action
+        homeScreen.classList.add('active');
+      } catch (err) {
+        console.error('cantChat error', err);
+      }
+    };
+
+    // Next Pangga: leave and requeue with same preferences
+    nextBtn.onclick = async () => {
+      // ensure can't-chat disabled while switching
+      cantChatBtn.disabled = true;
+      // gather preferences from UI
+      const preferences = {
+        prefLevel: document.getElementById('prefLevel').value || '',
+        prefSchool: document.getElementById('prefSchool').value.trim() || '',
+        prefGender: document.getElementById('prefGender').value.trim() || '',
+        prefMaxAge: document.getElementById('prefMaxAge').value || ''
+      };
+
+      // leave current room gracefully
+      await leaveRoom();
+
+      // re-enqueue using saved profile from UI
+      const level = document.getElementById('myLevel').textContent || document.getElementById('level').value;
+      const school = document.getElementById('mySchool').textContent || document.getElementById('school').value;
+      const age = document.getElementById('myAge').textContent || document.getElementById('age').value;
+      const gender = document.getElementById('gender').value.trim();
+      const profile = { level, school, age, gender };
+
+      // show loading and set queue
+      loadingScreen.classList.add('active');
+      await enqueueSelf(profile);
+
+      // try immediate claim
+      const claim = await tryClaimCandidate(preferences);
+      if (claim.success) {
+        await createRoomWith(claim.uid);
+        return;
+      } else {
+        document.getElementById('loadingText').textContent = 'Looking for next pangga...';
+        // wait: onChildAdded listener will react to new arrivals
+      }
+    };
+
+    // Skip: notify partner (system message), leave and requeue
+    skipBtn.onclick = async () => {
+      try {
+        if (roomId) {
+          // push a system message so partner sees we've skipped (optional)
+          await push(ref(db, `rooms/${roomId}/messages`), { text: '[User skipped the chat]', uid: '__system__', ts: serverTimestamp() }).catch(()=>{});
+        }
+        // leave current room
+        await leaveRoom();
+
+        // attempt to re-enqueue using saved profile (read from profiles)
+        const myProfSnap = await get(ref(db, `profiles/${me}`));
+        const prof = myProfSnap.exists() ? myProfSnap.val() : null;
+        if (prof) {
+          await enqueueSelf(prof);
+          // try immediate claim with current UI preferences
+          const preferences = {
+            prefLevel: document.getElementById('prefLevel').value || '',
+            prefSchool: document.getElementById('prefSchool').value.trim() || '',
+            prefGender: document.getElementById('prefGender').value.trim() || '',
+            prefMaxAge: document.getElementById('prefMaxAge').value || ''
+          };
+          const claim = await tryClaimCandidate(preferences);
+          if (claim.success) {
+            await createRoomWith(claim.uid);
+            return;
+          } else {
+            loadingScreen.classList.add('active');
+            document.getElementById('loadingText').textContent = 'Looking for next pangga...';
+          }
+        } else {
+          // fallback: show home
+          homeScreen.classList.add('active');
+        }
+      } catch (err) {
+        console.error('skip error', err);
+      }
+    };
+
+    // cleanup on page unload
+    window.addEventListener('beforeunload', async () => {
+      try { await remove(ref(db, `queue/${me}`)); } catch(e){}
+      try { if (roomId) await remove(ref(db, `rooms/${roomId}/users/${me}`)); } catch(e){}
+    });
+
+  </script>
 </body>
 </html>
-
-
-
-
