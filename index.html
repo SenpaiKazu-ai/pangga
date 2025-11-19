@@ -141,7 +141,6 @@
 
     #inputArea { display: flex; gap: 12px; margin-top: 10px; }
     #msgInput { flex: 1; background: rgba(255,255,255,0.8); border-radius: 30px; padding: 16px 20px; }
-    #sendBtn { padding: 16px 24px; border-radius: 50%; font-size: 1.3em; }
 
     /* Cute select styling for gender / school preferences */
     .cute-select {
@@ -185,6 +184,44 @@
     @keyframes dots { 0%, 20% { content: '.'; } 40% { content: '..'; } 60%, 100% { content: '...'; } }
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     @keyframes msgPop { from { opacity: 0; transform: scale(0.8); } to { opacity: 1; transform: scale(1); } }
+
+    /* --- overrides: bigger input, smaller send & action buttons --- */
+    /* make the in-chat input visually bigger and more comfortable to type in */
+    #inputArea { align-items: center; }
+    #msgInput {
+      font-size: 1.15rem;            /* larger text */
+      padding: 18px 16px;           /* more inner spacing */
+      height: 52px;                 /* taller input */
+      min-height: 44px;
+      border-radius: 28px;
+      box-shadow: 0 6px 14px rgba(0,0,0,0.04);
+    }
+
+    /* send button: smaller, don't stretch full width (override generic button rule) */
+    #sendBtn {
+      width: auto !important;
+      padding: 10px 12px !important;
+      border-radius: 12px !important;
+      font-size: 0.95rem !important;
+      height: 44px;
+      align-self: center;
+      box-shadow: 0 6px 18px rgba(255, 138, 215, 0.18);
+    }
+
+    /* action buttons (Next / Skip / I can't chat) — make them more compact */
+    #nextBtn, #skipBtn, #cantChatBtn {
+      padding: 10px 8px !important;
+      font-size: 0.95rem !important;
+      height: 44px;
+      border-radius: 12px !important;
+    }
+
+    /* ensure small-row / flex children keep layout when buttons shrink */
+    #chat > .profiles,
+    #chat > #messages,
+    #chat > #inputArea {
+      /* ...existing code... (keeps original layout) ... */
+    }
   </style>
 </head>
 <body>
@@ -230,19 +267,121 @@
       <div style="margin-top:6px;">
         <label style="font-size:0.9em; color:#555;">Match filters (optional)</label>
         <div class="small-row">
-          <select id="prefLevel" class="cute-select"><option value="">Any level</option><option>High School</option>
-            <option>College</option><option>Other</option></select>
-          <!-- prefSchool as select so choices are consistent and cute -->
+          <select id="prefLevel" class="cute-select">
+            <option value="">Any level</option>
+            <option>High School</option>
+            <option>College</option>
+            <option>Other</option>
+          </select>
+
+          <!-- prefSchool will be populated dynamically based on prefLevel -->
           <select id="prefSchool" class="cute-select">
             <option value="">Any school</option>
-            <option>📚 Visayas State University</option>
-            <option>📚 Eastern Visayas State University</option>
-            <option>📚 Leyte Normal University</option>
-            <option>📚 UP Tacloban</option>
-            <option>🏫 Leyte National High School</option>
-            <option>🏫 St. Scholastica's Tacloban</option>
-            <option>🌟 Others...</option>
           </select>
+
+          <script>
+          (function(){
+            const prefSchool = document.getElementById('prefSchool');
+            const prefLevel = document.getElementById('prefLevel');
+
+            const schoolsMap = {
+                'High School': [
+                '🏫 Leyte National High School',
+                '🏫 Merida Vocational School',
+                '🏫 St. Scholastica\'s Tacloban',
+                '🏫 Tacloban City Science High School',
+                '🏫 Tacloban City National High School',
+                '🏫 Palo National High School',
+                '🏫 Ormoc City National High School',
+                '🏫 Baybay City National High School',
+                '🏫 Carigara National High School',
+                '🏫 Burauen National High School',
+                '🏫 Alangalang National High School',
+                '🏫 Calubian National High School',
+                '🏫 Hilongos National High School',
+                '🏫 Kananga National High School',
+                '🏫 Matalom National High School',
+                '🏫 Matag-ob National High School',
+                '🏫 Abuyog National High School',
+                '🏫 Tolosa National High School',
+                '🏫 Dagami National High School',
+                '🏫 Javier (Bugho) National High School',
+                '🏫 Other High School...'
+                ],
+            College : [
+                // Public Universities
+                '📚 Visayas State University (VSU)',
+                '📚 Eastern Visayas State University (EVSU)',
+                '📚 EVSU – Calubian Campus',
+                '📚 Leyte Normal University (LNU)',
+                '📚 University of the Philippines Tacloban (UP Tacloban)',
+
+                // Private Universities & Colleges
+                '📚 Holy Infant College',
+                '📚 St. Paul University Eastern Visayas',
+                '📚 Sacred Heart College',
+                '📚 St. Therese Educational Foundation of Tacloban',
+                '📚 Leyte Institute of Technology',
+                '📚 University of the Visayas – Leyte Campus',
+                '📚 Northwest Samar State University – Leyte Extension Campus',
+
+                // Technical & Vocational Schools
+                '📚 Eastern Visayas College of Science and Technology',
+                '📚 Samar College of Science and Technology – Leyte Branch',
+                '📚 TESDA Accredited Schools in Leyte',
+                '📚 Leyte Colleges and Vocational Training Center',
+
+                // Other Colleges
+                '📚 Calbayog College – Leyte Branch',
+                '📚 Carigara Community College',
+                '📚 Palo National Vocational School',
+                '📚 Ormoc City College',
+                '📚 Baybay City College',
+
+                // Palompon
+                '📚 Palompon Institute of Technology',
+                '📚 Palompon School of Arts and Trade',
+                
+                // Isabel
+                '📚 Isabel College',
+                '📚 Isabel Vocational Training Center',
+
+                '📚 Other College...'
+              ],
+              'Other': [
+                '🌟 Others...'
+              ]
+            };
+
+            // fallback combined list used when "Any level" is selected
+            const combined = [
+              '📚 Visayas State University',
+              '📚 Eastern Visayas State University',
+              '📚 Leyte Normal University',
+              '📚 UP Tacloban',
+              '🏫 Leyte National High School',
+              "🏫 St. Scholastica's Tacloban",
+              '🌟 Others...'
+            ];
+
+            function setPrefSchoolOptions(list) {
+              prefSchool.innerHTML = '<option value="">Any school</option>' + list.map(s => `<option>${s}</option>`).join('');
+            }
+
+            function updatePrefSchool(level) {
+              if (!level) {
+                setPrefSchoolOptions(combined);
+                return;
+              }
+              const list = schoolsMap[level] || ['🌟 Others...'];
+              setPrefSchoolOptions(list);
+            }
+
+            prefLevel.addEventListener('change', (e) => updatePrefSchool(e.target.value));
+            // initial populate
+            updatePrefSchool(prefLevel.value);
+          })();
+          </script>
         </div>
         <div class="small-row" style="margin-top:8px;">
           <!-- prefGender select with Any option -->
@@ -836,3 +975,4 @@
   </script>
 </body>
 </html>
+
