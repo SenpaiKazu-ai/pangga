@@ -140,11 +140,32 @@
     .stranger { align-self: flex-start; background: rgba(255,255,255,0.9); }
 
     #inputArea { display: flex; gap: 12px; margin-top: 10px; }
-    #msgInput { flex: 1; background: rgba(255,255,255,0.8); border-radius: 30px; padding: 16px 20px; }
+    #msgInput {
+      flex: 1;
+      background: rgba(255,255,255,0.9);
+      border-radius: 40px;
+      padding: 18px 22px;
+      font-size: 1.05em;
+      height: 48px;
+    }
     #sendBtn { padding: 16px 24px; border-radius: 50%; font-size: 1.3em; }
 
-    /* Cute select styling for gender / school preferences */
-    .cute-select {
+    /* unified controls for Next / Skip */
+    .control-row { display:flex; gap:12px; margin-top:15px; }
+    .control-btn {
+      flex:1;
+      padding:12px 16px;
+      border-radius:14px;
+      font-weight:700;
+      border:none;
+      cursor:pointer;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+    }
+    .next-btn { background:#e9e9e9; color:#333; }
+    .skip-btn { background: linear-gradient(135deg,#ffa06b,#ff8a66); color: #fff; }
+
+    /* small tweak so inputs with .cute-select styling still look fine when applied to inputs */
+    input.cute-select {
       appearance: none;
       -webkit-appearance: none;
       -moz-appearance: none;
@@ -154,31 +175,7 @@
       font-size: 1em;
       border: none;
       box-shadow: 0 6px 18px rgba(255, 138, 215, 0.12), inset 0 -6px 12px rgba(0,0,0,0.02);
-      background-image: linear-gradient(135deg, rgba(255,155,200,0.08), rgba(168,230,255,0.06));
-      background-repeat: no-repeat;
-      background-position: right 12px center;
-      background-size: 22px;
       cursor: pointer;
-    }
-    /* small-row compatible */
-    .small-row .cute-select { flex: 1; }
-
-    /* tweak option text for friendliness (emojis included inside option text) */
-    select.cute-select option {
-      padding: 8px;
-      background: white;
-      color: #333;
-    }
-
-    /* add a subtle arrow using a radial-gradient as fallback for older UA */
-    select.cute-select::-ms-expand { display: none; }
-    select.cute-select {
-      background-image:
-        linear-gradient(135deg, rgba(255,155,200,0.06), rgba(168,230,255,0.06)),
-        radial-gradient(circle at right 16px center, #ff6bc0 8%, transparent 10%);
-      background-position: center right, center right;
-      background-repeat: no-repeat;
-      background-size: calc(1em + 8px) calc(1em + 8px), 18px 18px;
     }
 
     @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
@@ -232,17 +229,9 @@
         <div class="small-row">
           <select id="prefLevel" class="cute-select"><option value="">Any level</option><option>High School</option>
             <option>College</option><option>Other</option></select>
-          <!-- prefSchool as select so choices are consistent and cute -->
-          <select id="prefSchool" class="cute-select">
-            <option value="">Any school</option>
-            <option>📚 Visayas State University</option>
-            <option>📚 Eastern Visayas State University</option>
-            <option>📚 Leyte Normal University</option>
-            <option>📚 UP Tacloban</option>
-            <option>🏫 Leyte National High School</option>
-            <option>🏫 St. Scholastica's Tacloban</option>
-            <option>🌟 Others...</option>
-          </select>
+
+          <!-- replaced select with input that reuses the same datalist so both school fields match -->
+          <input list="schools" id="prefSchool" class="cute-select" placeholder="Any school">
         </div>
         <div class="small-row" style="margin-top:8px;">
           <!-- prefGender select with Any option -->
@@ -293,9 +282,11 @@
         <input type="text" id="msgInput" placeholder="Say something sweet...">
         <button id="sendBtn">Send</button>
       </div>
-      <div style="display:flex; gap:12px; margin-top:15px;">
-        <button id="nextBtn" style="background:#ccc; flex:1;">Next Pangga →</button>
-        <button id="skipBtn" style="background:#ffa06b; flex:1;">Skip</button>
+
+      <!-- replaced inline-styled buttons with control classes -->
+      <div class="control-row">
+        <button id="nextBtn" class="control-btn next-btn">Next Pangga →</button>
+        <button id="skipBtn" class="control-btn skip-btn">Skip</button>
       </div>
     </div>
   </div>
@@ -328,7 +319,8 @@
     let myQueueRef = null;
     let roomMessagesCallback = null;
     let queueChildListenerAttached = false;
-    let queueListenerCallback = null; // <-- added: keep reference to detach later
+    let queueListenerCallback = null; // <-- existing: detachable queue child listener
+    let queueClaimListenerCallback = null; // <-- NEW: listen for someone claiming our queue node
     let isQueued = false;
 
     // --- UI refs ---
@@ -513,14 +505,45 @@
       roomMessagesCallback = null;
     }
 
+    // --- utility functions to attach/detach the "someone claimed my queue entry" listener ---
+    function attachQueueClaimListener() {
+      if (!myQueueRef || queueClaimListenerCallback) return;
+      queueClaimListenerCallback = (snap) => {
+        const v = snap.val();
+        if (!v) return;
+        // if somebody claimed our queue entry, create/join the room
+        if (v.claimed && v.claimedBy && v.claimedBy !== me) {
+          // detach to avoid double-handling
+          detachQueueClaimListener();
+          // mark not queued
+          isQueued = false;
+          // ensure create/join
+          createRoomWith(v.claimedBy).catch(err => console.error('createRoomWith after claim listener error', err));
+        }
+      };
+      onValue(myQueueRef, queueClaimListenerCallback);
+    }
+    function detachQueueClaimListener() {
+      if (!queueClaimListenerCallback || !myQueueRef) return;
+      try {
+        off(myQueueRef, 'value', queueClaimListenerCallback);
+      } catch (e) {
+        try { off(myQueueRef); } catch(e) {}
+      }
+      queueClaimListenerCallback = null;
+    }
+
     // --- create or join room safely ---
     async function createRoomWith(uid) {
       if (!me || partner || uid === me) return;
+      // once we create/join a room, we're no longer considered queued
+      isQueued = false;
+      detachQueueClaimListener(); // don't keep listening to queue claims
       partner = uid;
       roomId = me < uid ? `${me}_${uid}` : `${uid}_${me}`;
       const roomRef = ref(db, `rooms/${roomId}`);
       try {
-        // remove both from queue
+        // remove both from queue (best-effort)
         await remove(ref(db, `queue/${me}`)).catch(()=>{});
         await remove(ref(db, `queue/${uid}`)).catch(()=>{});
         // ensure send UI is active
@@ -575,6 +598,9 @@
       await set(myQueueRef, payload);
       onDisconnect(myQueueRef).remove();
       isQueued = true;
+
+      // attach listener so if another client claims us we immediately join
+      attachQueueClaimListener();
     }
 
     // --- leave the current room and cleanup ---
@@ -598,6 +624,9 @@
       sendBtn.disabled = true;
       msgInput.disabled = true;
       skipBtn.disabled = true;
+
+      // if we left a room and were still queue-listening for claims, detach
+      detachQueueClaimListener();
     }
 
     // --- send message ---
@@ -693,6 +722,9 @@
         isQueued = false;
         loadingScreen.classList.remove('active');
         homeScreen.classList.add('active');
+
+        // detach the "someone claimed me" listener
+        detachQueueClaimListener();
 
         // detach queue listener if attached
         if (queueChildListenerAttached && queueListenerCallback) {
