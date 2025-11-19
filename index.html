@@ -222,6 +222,21 @@
     #chat > #inputArea {
       /* ...existing code... (keeps original layout) ... */
     }
+
+    /* footer attribution */
+    #appFooter {
+      text-align: center;
+      font-size: 0.85rem;
+      color: rgba(51,51,51,0.7);
+      padding: 12px 16px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.02), transparent);
+    }
+    #appFooter a {
+      color: #ff6bc0;
+      text-decoration: none;
+      font-weight: 600;
+    }
+    #appFooter a:hover { text-decoration: underline; }
   </style>
 </head>
 <body>
@@ -238,18 +253,23 @@
 
     <!-- Home -->
     <div id="home" class="screen active">
-      <select id="level" required><option value="">Your Level</option><option>High School</option><option>College</option><option>Other</option></select>
-      <input list="schools" id="school" placeholder="Your school" required>
+      <select id="level" class="cute-select" required>
+      <option value="">Your Level</option>
+      <option>High School</option>
+      <option>College</option>
+      <option>Other</option>
+      </select>
+      <input list="schools" id="school" class="cute-select" placeholder="Your school" required>
       <datalist id="schools">
-        <option>Visayas State University</option>
-        <option>Eastern Visayas State University</option>
-        <option>Leyte Normal University</option>
-        <option>UP Tacloban</option>
-        <option>Leyte National High School</option>
-        <option>St. Scholastica's Tacloban</option>
-        <option>Others...</option>
+      <option>Visayas State University</option>
+      <option>Eastern Visayas State University</option>
+      <option>Leyte Normal University</option>
+      <option>UP Tacloban</option>
+      <option>Leyte National High School</option>
+      <option>St. Scholastica's Tacloban</option>
+      <option>Others...</option>
       </datalist>
-      <div class="small-row">
+      <div class="small-row"></div>
         <input id="age" type="number" min="13" placeholder="Age" required>
         <!-- gender select with emoji choices -->
         <select id="gender" class="cute-select">
@@ -443,6 +463,12 @@
         <button id="cantChatBtn" style="background:#ff6b6b; color:white; flex:1;">I can't chat</button>
       </div>
     </div>
+
+    <!-- attribution footer -->
+    <div id="appFooter">
+      Created by Jhunmark Premacio — if any problems, chat on
+      <a href="https://www.facebook.com/marky.premacio" target="_blank" rel="noopener">Facebook</a>
+    </div>
   </div>
 
   <script type="module">
@@ -475,6 +501,10 @@
     let queueChildListenerAttached = false;
     let queueListenerCallback = null; // <-- added: keep reference to detach later
     let isQueued = false;
+
+    // rooms listener state (new)
+    let roomsChildListenerAttached = false;
+    let roomsListenerCallback = null;
 
     // --- UI refs ---
     const startBtn = document.getElementById('startBtn');
@@ -635,6 +665,64 @@
       return { success:false };
     }
 
+    // --- listen for newly created rooms so the non-creating peer can join ---
+    function attachRoomsListener() {
+      if (roomsChildListenerAttached) return;
+      roomsChildListenerAttached = true;
+      roomsListenerCallback = (snap) => {
+        const data = snap.val();
+        if (!data || !data.users || !me) return;
+        // if this room contains me and we're not already in a room, join it
+        if (data.users[me] && !roomId) {
+          // set partner (the other uid) if present
+          const uids = Object.keys(data.users).filter(u => u !== me);
+          partner = uids.length ? uids[0] : null;
+          roomId = snap.key;
+
+          // cleanup queue entries (best-effort)
+          remove(ref(db, `queue/${me}`)).catch(()=>{});
+
+          // enable UI
+          sendBtn.disabled = false;
+          msgInput.disabled = false;
+          skipBtn.disabled = false;
+          cantChatBtn.disabled = false;
+
+          // fetch partner profile if exists
+          if (partner) {
+            get(ref(db, `profiles/${partner}`)).then(p => {
+              if (p && p.val()) {
+                const d = p.val();
+                document.getElementById('strLevel').textContent = d.level || '-';
+                document.getElementById('strSchool').textContent = d.school || '-';
+                document.getElementById('strAge').textContent = d.age || '-';
+                document.getElementById('strHobbies').textContent = d.hobbies || '-';
+              }
+            }).catch(()=>{});
+          }
+
+          // switch UI
+          loadingScreen.classList.remove('active');
+          homeScreen.classList.remove('active');
+          chatScreen.classList.add('active');
+          document.getElementById('status').textContent = 'Connected na! 💕';
+
+          attachMessagesListener(roomId);
+        }
+      };
+      onChildAdded(ref(db, 'rooms'), roomsListenerCallback);
+    }
+    function detachRoomsListener() {
+      if (!roomsChildListenerAttached || !roomsListenerCallback) return;
+      try {
+        off(ref(db, 'rooms'), 'child_added', roomsListenerCallback);
+      } catch (e) {
+        try { off(ref(db, 'rooms')); } catch(e) {}
+      }
+      roomsChildListenerAttached = false;
+      roomsListenerCallback = null;
+    }
+
     // --- attach/detach messages listener ---
     function attachMessagesListener(rid) {
       if (!rid) return;
@@ -663,22 +751,30 @@
 
     // --- create or join room safely ---
     async function createRoomWith(uid) {
+      // claimer creates a fresh unique room (push) so each match gets a new room id.
       if (!me || partner || uid === me) return;
-      partner = uid;
-      roomId = me < uid ? `${me}_${uid}` : `${uid}_${me}`;
-      const roomRef = ref(db, `rooms/${roomId}`);
       try {
-        // remove both from queue
+        // remove both from queue (best-effort)
         await remove(ref(db, `queue/${me}`)).catch(()=>{});
         await remove(ref(db, `queue/${uid}`)).catch(()=>{});
-        // ensure send UI is active
+
+        // create a new room record with push() so the key is unique per match
+        const newRoomRef = push(ref(db, 'rooms'));
+        const roomPayload = {
+          users: { [me]: true, [uid]: true },
+          createdAt: serverTimestamp()
+        };
+        await set(newRoomRef, roomPayload);
+
+        // set local state as creator
+        partner = uid;
+        roomId = newRoomRef.key;
+
+        // enable UI
         sendBtn.disabled = false;
         msgInput.disabled = false;
         skipBtn.disabled = false;
         cantChatBtn.disabled = false;
-
-        // ensure room has user entries
-        await update(roomRef, { users: { [me]: true, [uid]: true }, createdAt: serverTimestamp() });
 
         // fetch partner profile
         const p = await get(ref(db, `profiles/${uid}`));
@@ -687,7 +783,6 @@
           document.getElementById('strLevel').textContent = d.level || '-';
           document.getElementById('strSchool').textContent = d.school || '-';
           document.getElementById('strAge').textContent = d.age || '-';
-          // show partner hobbies
           document.getElementById('strHobbies').textContent = d.hobbies || '-';
         }
 
@@ -697,8 +792,9 @@
         chatScreen.classList.add('active');
         document.getElementById('status').textContent = 'Connected na! 💕';
 
-        // attach messages listener
+        // attach messages listener for this new room
         attachMessagesListener(roomId);
+
       } catch (err) {
         console.error('createRoomWith error:', err);
         partner = null;
@@ -727,12 +823,16 @@
       await set(myQueueRef, payload);
       onDisconnect(myQueueRef).remove();
       isQueued = true;
+      // ensure we watch for rooms that may include us (so non-creator can join)
+      attachRoomsListener();
     }
 
     // --- leave the current room and cleanup ---
     async function leaveRoom() {
       // detach message listener
       detachMessagesListener();
+      // detach rooms listener (we can reattach when needed)
+      detachRoomsListener();
       // remove our presence inside room users
       if (roomId && me) {
         try { await remove(ref(db, `rooms/${roomId}/users/${me}`)); } catch(e){ }
@@ -806,6 +906,8 @@
 
         // enqueue self
         await enqueueSelf(profile);
+        // ensure rooms listener is active so we can be joined by a creator
+        attachRoomsListener();
         console.log('Enqueued', me);
 
         // try immediate claim
@@ -975,4 +1077,5 @@
   </script>
 </body>
 </html>
+
 
